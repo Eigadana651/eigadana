@@ -14,6 +14,7 @@ import {
   addMovie,
   deleteMovie,
   updateMovie,
+  updateMovieOrder,
 } from './services/movies'
 
 
@@ -88,6 +89,7 @@ function App() {
   const [ searchText, setSearchText ] = useState('')
   const [selectedMovie, setSelectedMovie] = useState(null)
   const [editingMovie, setEditingMovie] = useState(null)
+  const [draggedMovieId, setDraggedMovieId] = useState(null)
 
     /* ====================
      映画を追加
@@ -156,6 +158,69 @@ async function handleUpdateMovie(updatedMovie) {
   } catch (error) {
     console.error('映画情報の更新に失敗しました:', error)
     alert('保存に失敗しました')
+  }
+}
+
+async function handleDropMovie(dropTargetId) {
+  if (
+    draggedMovieId === null ||
+    draggedMovieId === dropTargetId
+  ) {
+    setDraggedMovieId(null)
+    return
+  }
+
+  const draggedIndex = movies.findIndex(
+    (movie) => movie.id === draggedMovieId
+  )
+
+  const dropTargetIndex = movies.findIndex(
+    (movie) => movie.id === dropTargetId
+  )
+
+  if (
+    draggedIndex === -1 ||
+    dropTargetIndex === -1
+  ) {
+    setDraggedMovieId(null)
+    return
+  }
+
+  const previousMovies = movies
+
+  const reorderedMovies = [...movies]
+
+  const [draggedMovie] = reorderedMovies.splice(
+    draggedIndex,
+    1
+  )
+
+  reorderedMovies.splice(
+    dropTargetIndex,
+    0,
+    draggedMovie
+  )
+
+  const moviesWithUpdatedOrder = reorderedMovies.map(
+    (movie, index) => ({
+      ...movie,
+      sortOrder: index + 1,
+    })
+  )
+
+  setMovies(moviesWithUpdatedOrder)
+  setDraggedMovieId(null)
+
+  try {
+    await updateMovieOrder(moviesWithUpdatedOrder)
+  } catch (error) {
+    console.error('並び順の保存に失敗しました:', error)
+
+    setMovies(previousMovies)
+
+    window.alert(
+      '並び順の保存に失敗したため、元の順番に戻しました'
+    )
   }
 }
 
@@ -229,9 +294,22 @@ async function handleUpdateMovie(updatedMovie) {
       <section className="movieGrid">
         {filteredMovies.map((movie) => (
           <article
-            className="movieCard"
-            key={movie.id}
-          >
+  className="movieCard"
+  key={movie.id}
+  draggable
+  onDragStart={() => {
+    setDraggedMovieId(movie.id)
+  }}
+  onDragOver={(event) => {
+    event.preventDefault()
+  }}
+  onDrop={() => {
+  handleDropMovie(movie.id)
+}}
+onDragEnd={() => {
+  setDraggedMovieId(null)
+}}
+>
             {/* 星評価タブ */}
 
             <div className="ratingTab">

@@ -68,3 +68,18 @@ export async function updateMovie(updatedMovie) {
     throw error
   }
 }
+
+export async function updateMovieOrder(movies) {
+  const updates = movies.map((movie, index) => ({
+    id: movie.id,
+    sort_order: index + 1,
+  }))
+
+  const { error } = await supabase
+    .from('movies')
+    .upsert(updates)
+
+  if (error) {
+    throw error
+  }
+}

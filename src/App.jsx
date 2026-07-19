@@ -17,6 +17,22 @@ import {
   updateMovieOrder,
 } from './services/movies'
 
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+
+import {
+  SortableContext,
+  rectSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
+
+import SortableMovieCard from './components/SortableMovieCard'
+
 
 
 /* ====================
@@ -89,7 +105,14 @@ function App() {
   const [ searchText, setSearchText ] = useState('')
   const [selectedMovie, setSelectedMovie] = useState(null)
   const [editingMovie, setEditingMovie] = useState(null)
-  const [draggedMovieId, setDraggedMovieId] = useState(null)
+
+  const sensors = useSensors(
+  useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8,
+    },
+  })
+)
 
     /* ====================
      映画を追加
@@ -161,44 +184,27 @@ async function handleUpdateMovie(updatedMovie) {
   }
 }
 
-async function handleDropMovie(dropTargetId) {
-  if (
-    draggedMovieId === null ||
-    draggedMovieId === dropTargetId
-  ) {
-    setDraggedMovieId(null)
+}
+
+async function handleDragEnd(event) {
+  const { active, over } = event
+
+  if (!over || active.id === over.id) {
     return
   }
 
-  const draggedIndex = movies.findIndex(
-    (movie) => movie.id === draggedMovieId
+  const oldIndex = movies.findIndex(
+    (movie) => movie.id === active.id
   )
 
-  const dropTargetIndex = movies.findIndex(
-    (movie) => movie.id === dropTargetId
+  const newIndex = movies.findIndex(
+    (movie) => movie.id === over.id
   )
 
-  if (
-    draggedIndex === -1 ||
-    dropTargetIndex === -1
-  ) {
-    setDraggedMovieId(null)
-    return
-  }
-
-  const previousMovies = movies
-
-  const reorderedMovies = [...movies]
-
-  const [draggedMovie] = reorderedMovies.splice(
-    draggedIndex,
-    1
-  )
-
-  reorderedMovies.splice(
-    dropTargetIndex,
-    0,
-    draggedMovie
+  const reorderedMovies = arrayMove(
+    movies,
+    oldIndex,
+    newIndex
   )
 
   const moviesWithUpdatedOrder = reorderedMovies.map(
@@ -209,18 +215,14 @@ async function handleDropMovie(dropTargetId) {
   )
 
   setMovies(moviesWithUpdatedOrder)
-  setDraggedMovieId(null)
 
   try {
     await updateMovieOrder(moviesWithUpdatedOrder)
   } catch (error) {
-    console.error('並び順の保存に失敗しました:', error)
+    console.error(error)
 
-    setMovies(previousMovies)
-
-    window.alert(
-      '並び順の保存に失敗したため、元の順番に戻しました'
-    )
+    const latestMovies = await fetchMovies()
+    setMovies(latestMovies)
   }
 }
 
@@ -290,34 +292,25 @@ async function handleDropMovie(dropTargetId) {
             {/* ====================
           映画カード一覧
       ==================== */}
-
-      <section className="movieGrid">
-        {filteredMovies.map((movie) => (
-          <article
-  className="movieCard"
-  key={movie.id}
-  draggable
-  onDragStart={() => {
-    setDraggedMovieId(movie.id)
-  }}
-  onDragOver={(event) => {
-    event.preventDefault()
-  }}
-  onDrop={() => {
-  handleDropMovie(movie.id)
-}}
-onDragEnd={() => {
-  setDraggedMovieId(null)
-}}
+  <DndContext
+  sensors={sensors}
+  collisionDetection={closestCenter}
+  onDragEnd={handleDragEnd}
 >
+  <SortableContext
+    items={filteredMovies.map((movie) => movie.id)}
+    strategy={rectSortingStrategy}
+  >
+    <section className="movieGrid">
+      {filteredMovies.map((movie) => (
+        <SortableMovieCard id={movie.id} key={movie.id}>
+          <article className="movieCard">
             {/* 星評価タブ */}
-
             <div className="ratingTab">
               <StarRating rating={movie.rating} />
             </div>
 
             {/* カード本体 */}
-
             <div className="cardFrame">
               <div
                 className="poster"
@@ -341,8 +334,11 @@ onDragEnd={() => {
               </div>
             </div>
           </article>
-        ))}
-      </section>
+        </SortableMovieCard>
+      ))}
+    </section>
+  </SortableContext>
+</DndContext>
 
       {/* ====================
           映画追加モーダル
@@ -384,7 +380,7 @@ onDragEnd={() => {
      )}
     </main>
   )
-}
+
 
 
 

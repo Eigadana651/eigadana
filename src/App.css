@@ -1,0 +1,911 @@
+/* ====================
+   基本設定
+==================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f4f4f2;
+  color: #1f1f1f;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 28px 48px 56px;
+}
+
+/* ====================
+   上部操作バー
+==================== */
+
+.toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(240px, 360px)
+    auto
+    auto
+    auto
+    48px;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 34px;
+}
+
+.search,
+.toolbar button {
+  min-height: 48px;
+  border: 1px solid #d3d3d0;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.search {
+  width: 100%;
+  padding: 0 16px;
+}
+
+.toolbar button {
+  padding: 0 16px;
+}
+
+.viewButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.addButton {
+  display: grid;
+  width: 48px;
+  min-width: 48px;
+  padding: 0;
+  place-items: center;
+  font-size: 27px;
+  line-height: 1;
+}
+
+/* ====================
+   映画カード一覧
+==================== */
+
+.movieGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 34px 24px;
+}
+
+.movieCard {
+  position: relative;
+  min-width: 0;
+  padding-top: 24px;
+}
+
+/* ====================
+   星評価タブ
+==================== */
+
+.ratingTab {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  z-index: 2;
+
+  display: flex;
+  height: 20px;
+  padding: 0 3px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d8d8d5;
+  border-bottom: 0;
+  border-radius: 7px 7px 0 0;
+
+  background: #ffffff;
+
+  box-shadow: 1px -2px 5px rgb(0 0 0 / 6%);
+}
+
+/* ====================
+   0.5単位の星評価
+==================== */
+
+.starRating {
+  position: relative;
+  display: inline-block;
+
+  color: #dcdcd9;
+
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.emptyStars {
+  display: block;
+}
+
+.filledStars {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: block;
+  overflow: hidden;
+
+  color: #ffdc00;
+  white-space: nowrap;
+}
+
+/* ====================
+   カード本体
+==================== */
+
+.cardFrame {
+  overflow: hidden;
+
+  border: 1px solid #d8d8d5;
+  border-radius: 8px 0 8px 8px;
+
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 8%);
+}
+
+/* ====================
+   ポスター部分
+==================== */
+
+.poster {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  place-items: center;
+  overflow: hidden;
+
+  background: #e4e4e1;
+  color: #777772;
+
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+.poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ====================
+   タイトル・公開年
+==================== */
+
+.movieInfo {
+  min-height: 58px;
+  padding: 5px 8px 6px;
+
+  border-top: 1px solid #e3e3e0;
+
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.titleBlock {
+  display: flex;
+  width: 100%;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 2px;
+}
+
+.titleBlock h3 {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.15;
+  text-align: center;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.titleBlock p {
+  margin: 0;
+
+  color: #666660;
+
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ====================
+   映画追加画面の背景
+==================== */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+
+  display: grid;
+  place-items: center;
+
+  padding: 24px;
+
+  background: rgb(20 20 20 / 45%);
+  backdrop-filter: blur(3px);
+}
+
+/* ====================
+   映画追加画面本体
+==================== */
+
+.modal {
+  width: min(100%, 560px);
+  max-height: calc(100vh - 48px);
+
+  overflow-y: auto;
+
+  border: 1px solid #d7d7d2;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow: 0 18px 60px rgb(0 0 0 / 25%);
+}
+
+.modalHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  display: flex;
+  min-height: 64px;
+  padding: 0 18px 0 22px;
+
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #e6e6e2;
+
+  background: #ffffff;
+}
+
+.modalHeader h2 {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.closeButton {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+
+  place-items: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #555550;
+
+  font-size: 27px;
+  line-height: 1;
+}
+
+.closeButton:hover {
+  background: #f0f0ed;
+}
+
+/* ====================
+   映画追加フォーム
+==================== */
+
+.movieForm {
+  display: grid;
+  gap: 19px;
+
+  padding: 22px;
+}
+
+.movieForm label {
+  display: grid;
+  gap: 8px;
+}
+
+.movieForm label > span {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.movieForm input,
+.movieForm select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 13px;
+
+  border: 1px solid #cdcdc8;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #1f1f1f;
+}
+
+.movieForm input:focus,
+.movieForm select:focus {
+  border-color: #6f8fc7;
+  outline: 3px solid rgb(111 143 199 / 18%);
+}
+
+/* ====================
+   ポスター画像の選択欄
+==================== */
+
+.posterInputSection {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+
+  padding: 16px;
+
+  border: 1px solid #deded9;
+  border-radius: 10px;
+
+  background: #f8f8f6;
+}
+
+.posterPreview {
+  display: grid;
+  width: 132px;
+
+  aspect-ratio: 2 / 3;
+  place-items: center;
+  overflow: hidden;
+
+  border: 1px solid #d2d2cd;
+  border-radius: 7px;
+
+  background: #e4e4e1;
+  color: #777772;
+
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.posterPreview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.posterInputControls {
+  display: flex;
+  min-width: 0;
+
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+.posterFileInput {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+
+  opacity: 0;
+  pointer-events: none;
+}
+
+.posterFileButton {
+  display: inline-flex;
+  min-height: 42px;
+  padding: 0 14px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #bfc7d2;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #254f7d;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  cursor: pointer;
+}
+
+.posterFileButton:hover {
+  background: #f1f5fa;
+}
+
+.posterFileName {
+  max-width: 100%;
+  margin: 0;
+
+  overflow: hidden;
+
+  color: #666660;
+
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removePosterButton {
+  min-height: 34px;
+  padding: 0 10px;
+
+  border: 1px solid #d2d2cd;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #555550;
+
+  font-size: 12px;
+}
+
+.removePosterButton:hover {
+  background: #eeeeeb;
+}
+
+/* ====================
+   映画追加画面のボタン
+==================== */
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding-top: 5px;
+}
+
+.cancelButton,
+.saveButton {
+  min-height: 44px;
+  padding: 0 18px;
+
+  border-radius: 8px;
+}
+
+.cancelButton {
+  border: 1px solid #cdcdc8;
+
+  background: #ffffff;
+  color: #333330;
+}
+
+.saveButton {
+  border: 1px solid #2d67ab;
+
+  background: #3478c7;
+  color: #ffffff;
+}
+
+.cancelButton:hover {
+  background: #f2f2ef;
+}
+
+.saveButton:hover {
+  background: #2d6db7;
+}
+
+/* ====================
+   画面幅が狭い場合
+==================== */
+
+@media (max-width: 1100px) {
+  .toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .movieGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .posterInputSection {
+    grid-template-columns: 1fr;
+  }
+
+  .posterPreview {
+    width: 150px;
+    justify-self: center;
+  }
+
+  .posterInputControls {
+    align-items: stretch;
+  }
+}
+
+/* ====================
+   映画詳細モーダル
+==================== */
+
+.detailContent {
+  padding: 24px;
+}
+
+.detailPoster {
+  width: 180px;
+  aspect-ratio: 2 / 3;
+
+  overflow: hidden;
+
+  margin: 0 auto 20px;
+
+  border-radius: 8px;
+
+  background: #e4e4e1;
+}
+
+.detailPoster img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.detailInfo {
+  text-align: center;
+}
+
+.detailInfo h3 {
+  margin-top: 0;
+}
+
+.detailActions {
+  display: flex;
+  justify-content: center;
+
+  margin-top: 24px;
+}
+
+/* ====================
+   映画編集画面の削除エリア
+==================== */
+
+.deleteSection {
+  display: flex;
+  margin-top: 10px;
+  padding-top: 20px;
+
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+
+  border-top: 1px solid #e3e3df;
+}
+
+.deleteSection p {
+  margin: 0;
+
+  color: #777772;
+
+  font-size: 12px;
+}
+
+.deleteMovieButton {
+  min-height: 40px;
+  padding: 0 14px;
+
+  border: 1px solid #c76666;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #a43d3d;
+
+  font-weight: 650;
+}
+
+.deleteMovieButton:hover {
+  background: #f8eaea;
+}
+
+.tmdbPosterOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.tmdbPosterOptions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tmdbPosterOptions img {
+  width: 100%;
+  aspect-ratio: 1 / 1.48;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+
+/* ====================
+   ポスター候補の並び順
+==================== */
+
+.posterSortControls {
+  margin-top: 10px;
+}
+
+.posterSortControls label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.posterSortControls label > span {
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.posterSortControls select {
+  width: 180px;
+  min-height: 38px;
+  padding: 0 10px;
+
+  border: 1px solid #cdcdc8;
+  border-radius: 7px;
+
+  background: #ffffff;
+}
+
+/* ====================
+   選択中のポスター候補
+==================== */
+
+.tmdbPosterOptions button {
+  position: relative;
+  border: 3px solid transparent;
+  border-radius: 8px;
+}
+
+.tmdbPosterOptions button:hover {
+  border-color: #b9c7d8;
+}
+
+.tmdbPosterOptions button.isSelected {
+  border-color: #3478c7;
+  box-shadow: 0 0 0 2px rgb(52 120 199 / 18%);
+}
+
+/* ====================
+   ポスターの確定ボタン
+==================== */
+
+.posterSelectionActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.posterSelectionActions button {
+  min-height: 40px;
+  padding: 0 14px;
+
+  border: 1px solid #2d67ab;
+  border-radius: 8px;
+
+  background: #3478c7;
+  color: #ffffff;
+
+  font-weight: 650;
+}
+
+.posterSelectionActions button:disabled {
+  border-color: #c8c8c3;
+
+  background: #ddddda;
+  color: #888883;
+
+  cursor: not-allowed;
+}
+
+.posterModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(90, 90, 90, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.posterModal {
+  width: min(900px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+
+  padding: 20px;
+
+  background: #fff;
+  border-radius: 12px;
+}
+
+.posterModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 16px;
+}
+
+.posterModalHeader h2 {
+  margin: 0;
+}
+
+.posterModalClose {
+  border: none;
+  background: transparent;
+
+  font-size: 24px;
+  cursor: pointer;
+
+  color: #666;
+}
+
+.posterModalClose:hover {
+  color: #111;
+}
+
+.tmdbSearchResults {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.tmdbSearchResultCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  width: 100%;
+  padding: 8px;
+
+  border: 1px solid #d8d8d3;
+  border-radius: 8px;
+
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tmdbSearchResultCard:hover {
+  background: #f5f5f2;
+  border-color: #aaa;
+}
+
+.tmdbSearchResultPoster {
+  flex: 0 0 54px;
+  width: 54px;
+  aspect-ratio: 1 / 1.48;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+  border-radius: 5px;
+  background: #eee;
+}
+
+.tmdbSearchResultPoster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tmdbSearchResultPoster span {
+  font-size: 9px;
+  color: #888;
+}
+
+.tmdbSearchResultInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tmdbSearchResultInfo strong {
+  font-size: 15px;
+}
+
+.tmdbOriginalTitle {
+  font-size: 12px;
+  color: #777;
+}
+
+.tmdbReleaseYear {
+  font-size: 13px;
+  color: #555;
+}
+
+.posterActionButton {
+  display: block;
+
+  width: 280px;
+  height: 48px;
+
+  border: 1px solid #d8d8d3;
+  border-radius: 8px;
+
+  background: #fff;
+  cursor: pointer;
+
+  margin-top: 8px;
+}
+
+.posterPrimaryButton {
+  width: 100%;
+  min-height: 48px;
+
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+
+  background: #fff;
+
+  font-size: 16px;
+  font-weight: 600;
+}

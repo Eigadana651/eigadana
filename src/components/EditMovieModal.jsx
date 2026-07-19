@@ -1,0 +1,348 @@
+import PosterPickerModal from './PosterPickerModal'
+import { useState } from 'react'
+import '../App.css'
+
+import {
+  searchTmdbMovie,
+  fetchTmdbPosters,
+} from '../services/tmdb'
+
+function EditMovieModal({
+  movie,
+  onClose,
+  onSave,
+  onDelete,
+}) {
+  const [title, setTitle] = useState(movie.title)
+  const [year, setYear] = useState(String(movie.year))
+  const [rating, setRating] = useState(String(movie.rating))
+  const [posterUrl, setPosterUrl] = useState(movie.posterUrl || '')
+
+  const [searchResults, setSearchResults] = useState([])
+const [isSearching, setIsSearching] = useState(false)
+const [selectedTmdbId, setSelectedTmdbId] = useState(
+  movie.tmdbId ?? null
+)
+
+const [posterOptions, setPosterOptions] = useState([])
+const [isLoadingPosters, setIsLoadingPosters] = useState(false)
+
+const [posterSort, setPosterSort] = useState('japanese')
+const [selectedPosterPath, setSelectedPosterPath] = useState(null)
+
+const [isPosterModalOpen, setIsPosterModalOpen] = useState(false)
+
+async function handleLoadPosters() {
+  if (!selectedTmdbId) {
+    window.alert(
+      'この作品にはTMDb情報が保存されていません。'
+    )
+    return
+  }
+
+  setIsLoadingPosters(true)
+
+  try {
+    const posters = await fetchTmdbPosters(selectedTmdbId)
+
+    const postersWithRandomOrder = posters
+      .slice(0, 30)
+      .map((poster) => ({
+        ...poster,
+        randomOrder: Math.random(),
+      }))
+
+    setPosterOptions(postersWithRandomOrder)
+    setSelectedPosterPath(null)
+    setIsPosterModalOpen(true)
+  } catch (error) {
+    console.error(error)
+    window.alert('ポスター一覧の取得に失敗しました')
+  } finally {
+    setIsLoadingPosters(false)
+  }
+}
+
+const sortedPosterOptions = [...posterOptions].sort((a, b) => {
+  if (posterSort === 'japanese') {
+    const aIsJapanese = a.iso_639_1 === 'ja' ? 1 : 0
+    const bIsJapanese = b.iso_639_1 === 'ja' ? 1 : 0
+
+    if (aIsJapanese !== bIsJapanese) {
+      return bIsJapanese - aIsJapanese
+    }
+
+    return (b.vote_count || 0) - (a.vote_count || 0)
+  }
+
+  if (posterSort === 'rating') {
+    if ((b.vote_average || 0) !== (a.vote_average || 0)) {
+      return (b.vote_average || 0) - (a.vote_average || 0)
+    }
+
+    return (b.vote_count || 0) - (a.vote_count || 0)
+  }
+
+  if (posterSort === 'resolution') {
+    return (
+      (b.width || 0) * (b.height || 0) -
+      (a.width || 0) * (a.height || 0)
+    )
+  }
+
+  if (posterSort === 'random') {
+    return a.randomOrder - b.randomOrder
+  }
+
+  return 0
+})
+
+  /* ====================
+     新しいポスター画像を選択
+  ==================== */
+
+  function handlePosterChange(event) {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      window.alert('画像ファイルを選択してください。')
+      event.target.value = ''
+      return
+    }
+
+    const temporaryUrl = URL.createObjectURL(file)
+    setPosterUrl(temporaryUrl)
+  }
+
+  /* ====================
+     編集内容を保存
+  ==================== */
+
+  function handleSubmit(event) {
+    event.preventDefault()
+
+    const trimmedTitle = title.trim()
+
+    if (!trimmedTitle) {
+      return
+    }
+
+    onSave({
+      ...movie,
+      title: trimmedTitle,
+      year: Number(year),
+      rating: Number(rating),
+      posterUrl,
+      tmdbId: selectedTmdbId,
+    })
+  }
+
+  return (
+    <div
+      className="modalOverlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose()
+        }
+      }}
+    >
+      <section
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-movie-title"
+      >
+        {/* ====================
+            編集画面ヘッダー
+        ==================== */}
+
+        <div className="modalHeader">
+          <h2 id="edit-movie-title">
+            映画を編集
+          </h2>
+
+          <button
+            className="closeButton"
+            type="button"
+            onClick={onClose}
+            aria-label="閉じる"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* ====================
+            編集フォーム
+        ==================== */}
+
+        <form
+          className="movieForm"
+          onSubmit={handleSubmit}
+        >
+          {/* ポスター画像 */}
+
+          <div className="posterInputSection">
+            <div className="posterPreview">
+              {posterUrl ? (
+                <img
+                  src={posterUrl}
+                  alt="ポスターのプレビュー"
+                />
+              ) : (
+                <span>POSTER</span>
+              )}
+            </div>
+
+            <div className="posterInputControls">
+
+              <button
+  type="button"
+  className="posterPrimaryButton"
+  onClick={handleLoadPosters}
+  disabled={isLoadingPosters}
+>
+  {isLoadingPosters
+    ? 'ポスターを読み込み中...'
+    : 'ポスターを変更'}
+</button>
+
+              <label
+                className="posterFileButton"
+                htmlFor="edit-poster-file"
+              >
+                ポスター画像をアップロード
+              </label>
+
+              <input
+                id="edit-poster-file"
+                className="posterFileInput"
+                type="file"
+                accept="image/*"
+                onChange={handlePosterChange}
+              />
+
+              {posterUrl && (
+                <button
+                  className="removePosterButton"
+                  type="button"
+                  onClick={() => setPosterUrl('')}
+                >
+                  画像を外す
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* タイトル */}
+
+          <label>
+            <span>タイトル</span>
+
+            <input
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              required
+              autoFocus
+            />
+          </label>
+
+          {/* 公開年 */}
+
+          <label>
+            <span>公開年</span>
+
+            <input
+              type="number"
+              value={year}
+              onChange={(event) => setYear(event.target.value)}
+              min="1880"
+              max="2100"
+              required
+            />
+          </label>
+
+          {/* 評価 */}
+
+          <label>
+            <span>自分の評価</span>
+
+            <select
+              value={rating}
+              onChange={(event) => setRating(event.target.value)}
+            >
+              <option value="0">未評価</option>
+              <option value="0.5">0.5</option>
+              <option value="1">1.0</option>
+              <option value="1.5">1.5</option>
+              <option value="2">2.0</option>
+              <option value="2.5">2.5</option>
+              <option value="3">3.0</option>
+              <option value="3.5">3.5</option>
+              <option value="4">4.0</option>
+              <option value="4.5">4.5</option>
+              <option value="5">5.0</option>
+            </select>
+          </label>
+
+          {/* 保存・キャンセル */}
+
+          <div className="formActions">
+            <button
+              className="cancelButton"
+              type="button"
+              onClick={onClose}
+            >
+              キャンセル
+            </button>
+
+            <button
+              className="saveButton"
+              type="submit"
+            >
+              保存する
+            </button>
+          </div>
+
+          {/* ====================
+              削除エリア
+          ==================== */}
+
+          <div className="deleteSection">
+            <p>
+              この作品を映画棚から削除します。
+            </p>
+
+            <button
+              className="deleteMovieButton"
+              type="button"
+              onClick={() => onDelete(movie.id)}
+            >
+              映画を削除
+            </button>
+          </div>
+        </form>
+      </section>
+     <PosterPickerModal
+  isOpen={isPosterModalOpen}
+  onClose={() => {
+    setIsPosterModalOpen(false)
+    setSelectedPosterPath(null)
+  }}
+  posterSort={posterSort}
+  setPosterSort={setPosterSort}
+  sortedPosterOptions={sortedPosterOptions}
+  selectedPosterPath={selectedPosterPath}
+  setSelectedPosterPath={setSelectedPosterPath}
+  setPosterUrl={setPosterUrl}
+/>
+    </div>
+  )
+}
+
+export default EditMovieModal

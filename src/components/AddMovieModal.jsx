@@ -6,9 +6,10 @@ import PosterPickerModal from './PosterPickerModal'
 import { useState } from 'react'
 import '../App.css'
 import {
-    searchTmdbMovie,
-    fetchTmdbPosters,
-}from '../services/tmdb'
+  searchTmdbMovie,
+  fetchTmdbPosters,
+  fetchTmdbMovieDetails,
+} from '../services/tmdb'
 
 function AddMovieModal({ onClose, onAdd }) {
   const [title, setTitle] = useState('')

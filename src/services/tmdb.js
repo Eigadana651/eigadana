@@ -29,3 +29,38 @@ export async function fetchTmdbPosters(movieId) {
 
   return data.posters || []
 }
+
+export async function fetchTmdbMovieDetails(movieId) {
+  const [movieResponse, creditsResponse] = await Promise.all([
+    fetch(
+      `https://api.themoviedb.org/3/movie/${movieId}?language=ja-JP`,
+      {
+        headers: {
+          Authorization: `Bearer ${TMDB_TOKEN}`,
+        },
+      }
+    ),
+    fetch(
+      `https://api.themoviedb.org/3/movie/${movieId}/credits?language=ja-JP`,
+      {
+        headers: {
+          Authorization: `Bearer ${TMDB_TOKEN}`,
+        },
+      }
+    ),
+  ])
+
+  const movie = await movieResponse.json()
+  const credits = await creditsResponse.json()
+
+  const director = credits.crew?.find(
+    (person) => person.job === 'Director'
+  )
+
+  return {
+    originalTitle: movie.original_title,
+    productionCountries:
+      movie.production_countries?.map((country) => country.name) ?? [],
+    director: director?.name ?? '',
+  }
+}

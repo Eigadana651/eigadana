@@ -1,7 +1,3 @@
-/* ====================
-   映画詳細モーダル
-==================== */
-
 import React from 'react'
 
 function MovieDetailModal({
@@ -22,52 +18,73 @@ function MovieDetailModal({
         }
       }}
     >
-      <section className="modal">
-        <div className="modalHeader">
-          <h2>作品情報</h2>
+      <section className="modal detailModal">
+        <button
+          className="closeButton"
+          type="button"
+          onClick={onClose}
+        >
+          ×
+        </button>
 
-          <button
-            className="closeButton"
-            type="button"
-            onClick={onClose}
-          >
-            ×
-          </button>
-        </div>
+        <div className="detailLayout">
 
-        <div className="detailContent">
-          <div className="detailPoster">
-            {movie.posterUrl ? (
-              <img
-                src={movie.posterUrl}
-                alt={movie.title}
-              />
-            ) : (
-              <span>POSTER</span>
-            )}
+          {/* 左側 */}
+          <div className="detailLeft">
+            <div className="detailPoster">
+              {movie.posterUrl ? (
+                <img
+                  src={movie.posterUrl}
+                  alt={movie.title}
+                />
+              ) : (
+                <span>POSTER</span>
+              )}
+            </div>
           </div>
 
-          <div className="detailInfo">
-            <h3>{movie.title}</h3>
+          {/* 右側 */}
+          <div className="detailRight">
 
-            <p>
-              公開年：{movie.year}
-            </p>
+            <div className="detailHeader">
+              <h2>{movie.title}</h2>
 
-            <p>
-              評価：{movie.rating} / 5
-            </p>
+              <p className="detailOriginalTitle">
+                Original Title
+              </p>
+            </div>
+
+            <div className="detailMeta">
+              <p><strong>公開年</strong> {movie.year}</p>
+              <p><strong>監督</strong> －</p>
+              <p><strong>制作国</strong> －</p>
+              <p><strong>評価</strong> {movie.rating} / 5</p>
+            </div>
+
+            <div className="detailMemo">
+              <h3>メモ</h3>
+
+              <div className="detailMemoBox">
+                メモはまだありません。
+              </div>
+            </div>
+
+            <div className="detailTags">
+              <span>タグ</span>
+            </div>
+
+            <div className="detailFooter">
+              <button
+                className="saveButton"
+                type="button"
+                onClick={() => onEdit(movie)}
+              >
+                編集
+              </button>
+            </div>
+
           </div>
 
-          <div className="detailActions">
-            <button
-              className="saveButton"
-              type="button"
-              onClick={() => onEdit(movie)}
-            >
-              編集
-            </button>
-          </div>
         </div>
       </section>
     </div>

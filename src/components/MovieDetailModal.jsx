@@ -1,4 +1,5 @@
 import React from 'react'
+import StarRating from './StarRating'
 
 function MovieDetailModal({
   movie,
@@ -49,23 +50,49 @@ function MovieDetailModal({
             <div className="detailHeader">
               <h2>{movie.title}</h2>
 
-              <p className="detailOriginalTitle">
-                Original Title
-              </p>
+              {movie.originalTitle &&
+  movie.originalTitle !== movie.title && (
+    <p className="detailOriginalTitle">
+      {movie.originalTitle}
+    </p>
+)}
             </div>
 
             <div className="detailMeta">
-              <p><strong>公開年</strong> {movie.year}</p>
-              <p><strong>監督</strong> －</p>
-              <p><strong>制作国</strong> －</p>
-              <p><strong>評価</strong> {movie.rating} / 5</p>
-            </div>
+  <p>
+  <strong>公　開：</strong>
+  <span className="detailValue">
+    {movie.year}年
+  </span>
+</p>
+
+<p>
+  <strong>監　督：</strong>
+  <span className="detailValue">
+    {movie.director || '－'}
+  </span>
+</p>
+
+<p>
+  <strong>制作国：</strong>
+  <span className="detailValue">
+    {movie.productionCountries?.join(' / ') || '－'}
+  </span>
+</p>
+
+<p>
+  <strong>評　価：</strong>
+  <span className="detailValue">
+    <StarRating rating={movie.rating} />
+  </span>
+</p>
+</div>
 
             <div className="detailMemo">
-              <h3>メモ</h3>
+       
 
               <div className="detailMemoBox">
-                メモはまだありません。
+                メモ
               </div>
             </div>
 

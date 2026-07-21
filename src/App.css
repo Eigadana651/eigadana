@@ -608,33 +608,65 @@ button {
 }
 
 .detailHeader h2 {
+  font-family: "SF Pro Display", "Segoe UI", "Helvetica Neue", sans-serif;
   margin: 0;
-  font-size: 30px;
+  font-size: 28px;
+
 }
 
 .detailOriginalTitle {
-  margin-top: 6px;
-  color: #777;
+  margin-top: 10px;
+
+  color: #222;
+  font-size: 22px;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.detailValue {
+  font-family: "Noto Sans JP", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .detailMeta {
-  margin-top: 24px;
+  margin-top: 28px;
+  margin-left: 30px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px
 }
 
 .detailMeta p {
-  margin: 8px 0;
+  margin: 0;
+  
+  font-size: 21px;
+  line-height: 1.35;
+}
+
+.detailMeta .starRating {
+  font-size: 24px;
+}
+
+.detailValue .starRating {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  top: 1px;
 }
 
 .detailMemo {
-  margin-top: 28px;
-}
-
-.detailMemo h3 {
-  margin-bottom: 10px;
+  margin-top: 45px;
+  margin-left: 30px;
+  margin-right: 20px;
 }
 
 .detailMemoBox {
-  min-height: 120px;
+  min-height: 115px;
 
   padding: 12px;
 
@@ -642,6 +674,7 @@ button {
   border-radius: 8px;
 
   background: #fafafa;
+  text-align: left;
 }
 
 .detailTags {

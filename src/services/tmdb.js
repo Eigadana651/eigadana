@@ -1,5 +1,25 @@
 const TMDB_TOKEN = import.meta.env.VITE_TMDB_TOKEN
 
+const COUNTRY_NAMES = {
+  US: 'アメリカ',
+  JP: '日本',
+  GB: 'イギリス',
+  KR: '韓国',
+  FR: 'フランス',
+  DE: 'ドイツ',
+  IT: 'イタリア',
+  ES: 'スペイン',
+  CN: '中国',
+  TW: '台湾',
+  HK: '香港',
+  CA: 'カナダ',
+  AU: 'オーストラリア',
+  IN: 'インド',
+  BR: 'ブラジル',
+  MX: 'メキシコ',
+  RU: 'ロシア',
+}
+
 export async function searchTmdbMovie(title) {
   const response = await fetch(
     `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&language=ja-JP`,
@@ -60,7 +80,10 @@ export async function fetchTmdbMovieDetails(movieId) {
   return {
     originalTitle: movie.original_title,
     productionCountries:
-      movie.production_countries?.map((country) => country.name) ?? [],
+  movie.production_countries?.map(
+    (country) =>
+      COUNTRY_NAMES[country.iso_3166_1] || country.name
+  ) ?? [],
     director: director?.name ?? '',
   }
 }

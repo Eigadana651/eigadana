@@ -149,26 +149,47 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
      映画を追加
   ==================== */
 
-  function handleSubmit(event) {
-    event.preventDefault()
+  async function handleSubmit(event) {
+  event.preventDefault()
 
-    const trimmedTitle = title.trim()
-    const numericYear = Number(year)
-    const numericRating = Number(rating)
+  const trimmedTitle = title.trim()
+  const numericYear = Number(year)
+  const numericRating = Number(rating)
 
-    if (!trimmedTitle) {
-      return
-    }
-
-    onAdd({
-      id: crypto.randomUUID(),
-      title: trimmedTitle,
-      year: numericYear,
-      rating: numericRating,
-      posterUrl,
-      tmdbId: selectedTmdbId,
-    })
+  if (!trimmedTitle) {
+    return
   }
+
+  let originalTitle = ''
+  let director = ''
+  let productionCountries = []
+
+  if (selectedTmdbId) {
+    try {
+      const details = await fetchTmdbMovieDetails(selectedTmdbId)
+
+      originalTitle = details.originalTitle
+      director = details.director
+      productionCountries = details.productionCountries
+    } catch (error) {
+      console.error('TMDb詳細取得に失敗しました:', error)
+    }
+  }
+
+  onAdd({
+    id: crypto.randomUUID(),
+    title: trimmedTitle,
+    year: numericYear,
+    rating: numericRating,
+    posterUrl,
+    tmdbId: selectedTmdbId,
+
+    originalTitle,
+    director,
+    productionCountries,
+  })
+}
+  
 
   return (
     <div

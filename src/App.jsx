@@ -184,7 +184,7 @@ async function handleUpdateMovie(updatedMovie) {
   }
 }
 
-}
+
 
 async function handleDragEnd(event) {
   const { active, over } = event
@@ -380,8 +380,5 @@ async function handleDragEnd(event) {
      )}
     </main>
   )
-
-
-
-
+}
 export default App

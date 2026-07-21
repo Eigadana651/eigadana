@@ -190,8 +190,8 @@ async function handleDragEnd(event) {
   const { active, over } = event
 
   if (!over || active.id === over.id) {
-    return
-  }
+  return
+}
 
   const oldIndex = movies.findIndex(
     (movie) => movie.id === active.id

@@ -33,6 +33,8 @@ import {
 
 import SortableMovieCard from './components/SortableMovieCard'
 
+import PopCard from './components/PopCard'
+
 
 
 /* ====================
@@ -244,6 +246,18 @@ async function handleDragEnd(event) {
       .includes(normalizedSearchText)
   })
 
+  const displayItems = [
+  ...filteredMovies.slice(0, 2),
+
+  {
+    id: 'pop-1',
+    type: 'pop',
+    text: 'MCU Phase 1',
+  },
+
+  ...filteredMovies.slice(2),
+]
+
   return (
     <main className="app">
       {/* ====================
@@ -298,44 +312,60 @@ async function handleDragEnd(event) {
   onDragEnd={handleDragEnd}
 >
   <SortableContext
-    items={filteredMovies.map((movie) => movie.id)}
+    items={displayItems.map((item) => item.id)}
     strategy={rectSortingStrategy}
   >
     <section className="movieGrid">
-      {filteredMovies.map((movie) => (
-        <SortableMovieCard id={movie.id} key={movie.id}>
-          <article className="movieCard">
-            {/* 星評価タブ */}
-            <div className="ratingTab">
-              <StarRating rating={movie.rating} />
-            </div>
+      {displayItems.map((item) => {
 
-            {/* カード本体 */}
-            <div className="cardFrame">
-              <div
-                className="poster"
-                onClick={() => setSelectedMovie(movie)}
-              >
-                {movie.posterUrl ? (
-                  <img
-                    src={movie.posterUrl}
-                    alt={`${movie.title}のポスター`}
-                  />
-                ) : (
-                  <span>POSTER</span>
-                )}
-              </div>
+  if (item.type === 'pop') {
+    return (
+      <PopCard
+        key={item.id}
+        text={item.text}
+      />
+    )
+  }
 
-              <div className="movieInfo">
-                <div className="titleBlock">
-                  <h3>{movie.title}</h3>
-                  <p>（{movie.year}）</p>
-                </div>
-              </div>
+  const movie = item
+
+  return (
+    <SortableMovieCard
+      id={movie.id}
+      key={movie.id}
+    >
+      <article className="movieCard">
+        <div className="ratingTab">
+          <StarRating rating={movie.rating} />
+        </div>
+
+        <div className="cardFrame">
+          <div
+            className="poster"
+            onClick={() => setSelectedMovie(movie)}
+          >
+            {movie.posterUrl ? (
+              <img
+                src={movie.posterUrl}
+                alt={`${movie.title}のポスター`}
+              />
+            ) : (
+              <span>POSTER</span>
+            )}
+          </div>
+
+          <div className="movieInfo">
+            <div className="titleBlock">
+              <h3>{movie.title}</h3>
+              <p>（{movie.year}）</p>
             </div>
-          </article>
-        </SortableMovieCard>
-      ))}
+          </div>
+        </div>
+      </article>
+    </SortableMovieCard>
+  )
+})}
+      
     </section>
   </SortableContext>
 </DndContext>

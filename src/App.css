@@ -88,7 +88,7 @@ button {
 
 .movieGrid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 34px 24px;
 }
 
@@ -990,4 +990,37 @@ button {
 
   font-size: 16px;
   font-weight: 600;
+}
+
+/* ====================
+   棚POP
+==================== */
+
+.popCard {
+  grid-column: 1 / -1;
+
+  display: grid;
+  grid-template-columns: minmax(30px, 1fr) auto minmax(30px, 1fr);
+  gap: 18px;
+  align-items: center;
+
+  min-height: 70px;
+  padding: 8px 20px;
+}
+
+.popLine {
+  height: 1px;
+  background: #8d8d87;
+}
+
+.popText {
+  margin: 0;
+
+  color: #333330;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
 }

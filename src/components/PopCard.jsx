@@ -1,16 +1,13 @@
 import '../App.css'
 
-function PopCard({ text }) {
-    return (
-        <article className="popCard">
-            <div className="popLine" />
-            
-            <p className="popText">
-                {text}
-            </p>
-
-            <div className="popLine" />
-            </article>)
+function PopCard() {
+  return (
+    <article className="popCard">
+      <div className="popCardContent">
+        <p className="popTitle">POP</p>
+      </div>
+    </article>
+  )
 }
 
 export default PopCard

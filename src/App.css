@@ -996,7 +996,7 @@ button {
    棚POP
 ==================== */
 
-.popCard {
+.sectionCard {
   grid-column: 1 / -1;
 
   display: grid;
@@ -1008,12 +1008,12 @@ button {
   padding: 8px 20px;
 }
 
-.popLine {
+.sectionLine {
   height: 1px;
   background: #8d8d87;
 }
 
-.popText {
+.sectionText {
   margin: 0;
 
   color: #333330;

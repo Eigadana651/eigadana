@@ -33,7 +33,8 @@ import {
 
 import SortableMovieCard from './components/SortableMovieCard'
 
-import PopCard from './components/PopCard'
+import SectionCard from './components/SectionCard'
+import PopCreateModal from './components/PopCreateModal'
 
 
 
@@ -107,6 +108,7 @@ function App() {
   const [ searchText, setSearchText ] = useState('')
   const [selectedMovie, setSelectedMovie] = useState(null)
   const [editingMovie, setEditingMovie] = useState(null)
+  const [isPopModalOpen, setIsPopModalOpen] = useState(false)
 
   const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -250,10 +252,10 @@ async function handleDragEnd(event) {
   ...filteredMovies.slice(0, 2),
 
   {
-    id: 'pop-1',
-    type: 'pop',
-    text: 'MCU Phase 1',
-  },
+  id: 'section-1',
+  type: 'section',
+  text: 'MCU Phase 1',
+},
 
   ...filteredMovies.slice(2),
 ]
@@ -292,6 +294,13 @@ async function handleDragEnd(event) {
           </button>
         </div>
 
+      <button
+  type="button"
+  onClick={() => setIsPopModalOpen(true)}
+>
+  ＋POP
+</button>
+
         <button
           className="addButton"
           type="button"
@@ -318,14 +327,14 @@ async function handleDragEnd(event) {
     <section className="movieGrid">
       {displayItems.map((item) => {
 
-  if (item.type === 'pop') {
-    return (
-      <PopCard
-        key={item.id}
-        text={item.text}
-      />
-    )
-  }
+if (item.type === 'section') {
+  return (
+    <SectionCard
+      key={item.id}
+      text={item.text}
+    />
+  )
+}
 
   const movie = item
 
@@ -380,6 +389,12 @@ async function handleDragEnd(event) {
           onAdd={handleAddMovie}
         />
       )}
+
+      {isPopModalOpen && (
+  <PopCreateModal
+    onClose={() => setIsPopModalOpen(false)}
+  />
+)}
 
       {/* ====================
           映画詳細モーダル

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function PopCreateModal({ onClose }) {
+function PopCreateModal({ onClose, onAdd }) {
   const [text, setText] = useState('')
 
   return (
@@ -21,9 +21,12 @@ function PopCreateModal({ onClose }) {
             キャンセル
           </button>
 
-          <button disabled={!text.trim()}>
-            追加
-          </button>
+          <button
+  onClick={() => onAdd(text.trim())}
+  disabled={!text.trim()}
+>
+  追加
+</button>
         </div>
 
       </div>

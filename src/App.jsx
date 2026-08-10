@@ -34,6 +34,7 @@ import {
 import SortableMovieCard from './components/SortableMovieCard'
 
 import SectionCard from './components/SectionCard'
+import PopCard from './components/PopCard'
 import PopCreateModal from './components/PopCreateModal'
 
 
@@ -94,7 +95,25 @@ function App() {
   async function loadMovies() {
     try {
       const movies = await fetchMovies()
-      setMovies(movies)
+setMovies(movies)
+
+setShelfItems([
+  ...movies.slice(0, 2),
+
+  {
+    id: 'section-1',
+    type: 'section',
+    text: 'MCU Phase 1',
+  },
+
+  {
+    id: 'pop-1',
+    type: 'pop',
+    text: 'MARVEL',
+  },
+
+  ...movies.slice(2),
+])
     } catch (error) {
       console.error('映画の読み込みに失敗しました:', error)
     }
@@ -109,6 +128,7 @@ function App() {
   const [selectedMovie, setSelectedMovie] = useState(null)
   const [editingMovie, setEditingMovie] = useState(null)
   const [isPopModalOpen, setIsPopModalOpen] = useState(false)
+  const [shelfItems, setShelfItems] = useState([])
 
   const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -188,46 +208,48 @@ async function handleUpdateMovie(updatedMovie) {
   }
 }
 
+function handleAddPop(text) {
+  const newPop = {
+    id: `pop-${Date.now()}`,
+    type: 'pop',
+    text,
+  }
+
+  setShelfItems((currentItems) => [
+    ...currentItems,
+    newPop,
+  ])
+
+  setIsPopModalOpen(false)
+}
 
 
-async function handleDragEnd(event) {
+function handleDragEnd(event) {
   const { active, over } = event
 
   if (!over || active.id === over.id) {
-  return
-}
+    return
+  }
 
-  const oldIndex = movies.findIndex(
-    (movie) => movie.id === active.id
+  const oldIndex = shelfItems.findIndex(
+    (item) => item.id === active.id
   )
 
-  const newIndex = movies.findIndex(
-    (movie) => movie.id === over.id
+  const newIndex = shelfItems.findIndex(
+    (item) => item.id === over.id
   )
 
-  const reorderedMovies = arrayMove(
-    movies,
+  if (oldIndex === -1 || newIndex === -1) {
+    return
+  }
+
+  const reorderedItems = arrayMove(
+    shelfItems,
     oldIndex,
     newIndex
   )
 
-  const moviesWithUpdatedOrder = reorderedMovies.map(
-    (movie, index) => ({
-      ...movie,
-      sortOrder: index + 1,
-    })
-  )
-
-  setMovies(moviesWithUpdatedOrder)
-
-  try {
-    await updateMovieOrder(moviesWithUpdatedOrder)
-  } catch (error) {
-    console.error(error)
-
-    const latestMovies = await fetchMovies()
-    setMovies(latestMovies)
-  }
+  setShelfItems(reorderedItems)
 }
 
     /* ====================
@@ -248,17 +270,6 @@ async function handleDragEnd(event) {
       .includes(normalizedSearchText)
   })
 
-  const displayItems = [
-  ...filteredMovies.slice(0, 2),
-
-  {
-  id: 'section-1',
-  type: 'section',
-  text: 'MCU Phase 1',
-},
-
-  ...filteredMovies.slice(2),
-]
 
   return (
     <main className="app">
@@ -321,11 +332,11 @@ async function handleDragEnd(event) {
   onDragEnd={handleDragEnd}
 >
   <SortableContext
-    items={displayItems.map((item) => item.id)}
+    items={shelfItems.map((item) => item.id)}
     strategy={rectSortingStrategy}
   >
     <section className="movieGrid">
-      {displayItems.map((item) => {
+      {shelfItems.map((item) => {
 
 if (item.type === 'section') {
   return (
@@ -333,6 +344,17 @@ if (item.type === 'section') {
       key={item.id}
       text={item.text}
     />
+  )
+}
+
+if (item.type === 'pop') {
+  return (
+    <SortableMovieCard
+      id={item.id}
+      key={item.id}
+    >
+      <PopCard text={item.text} />
+    </SortableMovieCard>
   )
 }
 
@@ -390,9 +412,10 @@ if (item.type === 'section') {
         />
       )}
 
-      {isPopModalOpen && (
+  {isPopModalOpen && (
   <PopCreateModal
     onClose={() => setIsPopModalOpen(false)}
+    onAdd={handleAddPop}
   />
 )}
 

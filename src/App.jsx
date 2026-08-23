@@ -36,6 +36,7 @@ import SortableMovieCard from './components/SortableMovieCard'
 import SectionCard from './components/SectionCard'
 import PopCard from './components/PopCard'
 import PopCreateModal from './components/PopCreateModal'
+import AddItemModal from './components/AddItemModal'
 
 
 
@@ -97,23 +98,8 @@ function App() {
       const movies = await fetchMovies()
 setMovies(movies)
 
-setShelfItems([
-  ...movies.slice(0, 2),
+setShelfItems(movies)
 
-  {
-    id: 'section-1',
-    type: 'section',
-    text: 'MCU Phase 1',
-  },
-
-  {
-    id: 'pop-1',
-    type: 'pop',
-    text: 'MARVEL',
-  },
-
-  ...movies.slice(2),
-])
     } catch (error) {
       console.error('映画の読み込みに失敗しました:', error)
     }
@@ -129,6 +115,7 @@ setShelfItems([
   const [editingMovie, setEditingMovie] = useState(null)
   const [isPopModalOpen, setIsPopModalOpen] = useState(false)
   const [shelfItems, setShelfItems] = useState([])
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
 
   const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -147,7 +134,19 @@ async function handleAddMovie(newMovie) {
     await addMovie(newMovie, movies.length + 1)
 
     const updatedMovies = await fetchMovies()
-    setMovies(updatedMovies)
+setMovies(updatedMovies)
+
+setShelfItems((currentItems) => {
+  const newMovies = updatedMovies.filter(
+    (movie) =>
+      !currentItems.some((item) => item.id === movie.id)
+  )
+
+  return [
+    ...currentItems,
+    ...newMovies,
+  ]
+})
 
     setIsAddModalOpen(false)
   } catch (error) {
@@ -176,6 +175,9 @@ async function handleDeleteMovie(movieId) {
       currentMovies.filter((movie) => movie.id !== movieId)
     )
 
+    setShelfItems((currentItems) =>
+  currentItems.filter((item) => item.id !== movieId)
+)
     setSelectedMovie(null)
     setEditingMovie(null)
   } catch (error) {
@@ -224,7 +226,7 @@ function handleAddPop(text) {
 }
 
 
-function handleDragEnd(event) {
+async function handleDragEnd(event) {
   const { active, over } = event
 
   if (!over || active.id === over.id) {
@@ -250,6 +252,18 @@ function handleDragEnd(event) {
   )
 
   setShelfItems(reorderedItems)
+  const reorderedMovies = reorderedItems.filter(
+  (item) => item.type !== 'pop' && item.type !== 'section'
+)
+
+setMovies(reorderedMovies)
+
+try {
+  await updateMovieOrder(reorderedMovies)
+} catch (error) {
+  console.error('映画の並び順の保存に失敗しました:', error)
+  alert('並び順の保存に失敗しました')
+}
 }
 
     /* ====================
@@ -305,22 +319,15 @@ function handleDragEnd(event) {
           </button>
         </div>
 
-      <button
+     <button
+  className="addButton"
   type="button"
-  onClick={() => setIsPopModalOpen(true)}
+  onClick={() => setIsAddItemModalOpen(true)}
+  aria-label="追加"
+  title="追加"
 >
-  ＋POP
+  ＋
 </button>
-
-        <button
-          className="addButton"
-          type="button"
-          onClick={() => setIsAddModalOpen(true)}
-          aria-label="映画を追加"
-          title="映画を追加"
-        >
-          ＋
-        </button>
       </header>
 
             {/* ====================
@@ -401,16 +408,34 @@ if (item.type === 'pop') {
   </SortableContext>
 </DndContext>
 
+{isAddItemModalOpen && (
+  <AddItemModal
+    onClose={() => setIsAddItemModalOpen(false)}
+    onAddMovie={() => {
+      setIsAddItemModalOpen(false)
+      setIsAddModalOpen(true)
+    }}
+    onAddPop={() => {
+      setIsAddItemModalOpen(false)
+      setIsPopModalOpen(true)
+    }}
+  />
+)}
+
       {/* ====================
           映画追加モーダル
       ==================== */}
 
       {isAddModalOpen && (
-        <AddMovieModal
-          onClose={() => setIsAddModalOpen(false)}
-          onAdd={handleAddMovie}
-        />
-      )}
+  <AddMovieModal
+    onClose={() => setIsAddModalOpen(false)}
+    onCancel={() => {
+      setIsAddModalOpen(false)
+      setIsAddItemModalOpen(true)
+    }}
+    onAdd={handleAddMovie}
+  />
+)}
 
   {isPopModalOpen && (
   <PopCreateModal

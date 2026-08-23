@@ -11,7 +11,7 @@ import {
   fetchTmdbMovieDetails,
 } from '../services/tmdb'
 
-function AddMovieModal({ onClose, onAdd }) {
+function AddMovieModal({ onClose, onCancel, onAdd }) {
   const [title, setTitle] = useState('')
   const [year, setYear] = useState('')
   const [rating, setRating] = useState('3')
@@ -420,22 +420,22 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
 
           {/* 操作ボタン */}
 
-          <div className="formActions">
-            <button
-              className="cancelButton"
-              type="button"
-              onClick={onClose}
-            >
-              キャンセル
-            </button>
+   <div className="formActions">
+  <button
+    className="cancelButton"
+    type="button"
+    onClick={onCancel}
+  >
+    キャンセル
+  </button>
 
-            <button
-              className="saveButton"
-              type="submit"
-            >
-              追加する
-            </button>
-          </div>
+  <button
+    className="saveButton"
+    type="submit"
+  >
+    追加する
+  </button>
+</div>
         </form>
       </section>
     </div>

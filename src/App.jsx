@@ -194,16 +194,13 @@ async function handleUpdateMovie(updatedMovie) {
   try {
     await updateMovie(updatedMovie)
 
-    setMovies((currentMovies) =>
-      currentMovies.map((movie) =>
-        movie.id === updatedMovie.id
-          ? updatedMovie
-          : movie
-      )
-    )
+    const updatedMovies = await fetchMovies()
+
+    setMovies(updatedMovies)
+    setShelfItems(updatedMovies)
 
     setEditingMovie(null)
-    setSelectedMovie(updatedMovie)
+    setSelectedMovie(null)
   } catch (error) {
     console.error('映画情報の更新に失敗しました:', error)
     alert('保存に失敗しました')

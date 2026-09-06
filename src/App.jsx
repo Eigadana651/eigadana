@@ -82,6 +82,7 @@ const initialMovies = [
   },
 ]
 
+
 /* ====================
    メイン画面
 ==================== */
@@ -116,6 +117,7 @@ setShelfItems(movies)
   const [isPopModalOpen, setIsPopModalOpen] = useState(false)
   const [shelfItems, setShelfItems] = useState([])
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
+  const [sortMode, setSortMode] = useState('original')
 
   const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -281,6 +283,48 @@ try {
       .includes(normalizedSearchText)
   })
 
+  const displayedShelfItems = (() => {
+  if (sortMode === 'original') {
+    return shelfItems
+  }
+
+  const movieItems = shelfItems.filter(
+    (item) => item.type !== 'pop' && item.type !== 'section'
+  )
+
+  const sortedMovies = [...movieItems].sort((a, b) => {
+    if (sortMode === 'year-asc') {
+      return a.year - b.year
+    }
+
+    if (sortMode === 'year-desc') {
+      return b.year - a.year
+    }
+
+    if (sortMode === 'rating-desc') {
+      return b.rating - a.rating
+    }
+
+    if (sortMode === 'rating-asc') {
+      return a.rating - b.rating
+    }
+
+    return 0
+  })
+
+  let movieIndex = 0
+
+  return shelfItems.map((item) => {
+    if (item.type === 'pop' || item.type === 'section') {
+      return item
+    }
+
+    const movie = sortedMovies[movieIndex]
+    movieIndex += 1
+
+    return movie
+  })
+})()
 
   return (
     <main className="app">
@@ -302,45 +346,48 @@ try {
           グループ：すべて
         </button>
 
-        <button type="button">
-          並べ替え：昇順（オリジナル）
-        </button>
-
-        <div className="viewButtons">
-          <button type="button">
-            ポスター
-          </button>
-
-          <button type="button">
-            5列
-          </button>
-        </div>
-
-     <button
-  className="addButton"
-  type="button"
-  onClick={() => setIsAddItemModalOpen(true)}
-  aria-label="追加"
-  title="追加"
+        <select
+  value={sortMode}
+  onChange={(event) => setSortMode(event.target.value)}
+  aria-label="並べ替え"
 >
-  ＋
-</button>
+  <option value="original">
+    並べ替え：オリジナル
+  </option>
+
+  <option value="year-asc">
+    公開順：昇順
+  </option>
+
+  <option value="year-desc">
+    公開順：降順
+  </option>
+
+  <option value="rating-desc">
+    評価順：高い順
+  </option>
+
+  <option value="rating-asc">
+    評価順：低い順
+  </option>
+</select>
+
       </header>
 
             {/* ====================
           映画カード一覧
       ==================== */}
   <DndContext
-  sensors={sensors}
+  sensors={sortMode === 'original' ? sensors : []}
   collisionDetection={closestCenter}
   onDragEnd={handleDragEnd}
 >
   <SortableContext
-    items={shelfItems.map((item) => item.id)}
+    items={displayedShelfItems.map((item) => item.id)}
     strategy={rectSortingStrategy}
   >
     <section className="movieGrid">
-      {shelfItems.map((item) => {
+      {displayedShelfItems.map((item) => {
 
 if (item.type === 'section') {
   return (
@@ -404,6 +451,15 @@ if (item.type === 'pop') {
     </section>
   </SortableContext>
 </DndContext>
+<button
+  className="addButton"
+  type="button"
+  onClick={() => setIsAddModalOpen(true)}
+  aria-label="映画を追加"
+  title="映画を追加"
+>
+  ＋
+</button>
 
 {isAddItemModalOpen && (
   <AddItemModal
@@ -426,10 +482,7 @@ if (item.type === 'pop') {
       {isAddModalOpen && (
   <AddMovieModal
     onClose={() => setIsAddModalOpen(false)}
-    onCancel={() => {
-      setIsAddModalOpen(false)
-      setIsAddItemModalOpen(true)
-    }}
+    onCancel={() => setIsAddModalOpen(false)}
     onAdd={handleAddMovie}
   />
 )}

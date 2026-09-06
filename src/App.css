@@ -42,13 +42,12 @@ button {
   grid-template-columns:
     minmax(240px, 360px)
     auto
-    auto
-    auto
-    48px;
+    auto;
   gap: 14px;
   align-items: center;
   margin-bottom: 34px;
 }
+
 
 .search,
 .toolbar button {
@@ -73,13 +72,34 @@ button {
 }
 
 .addButton {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 50;
+
   display: grid;
-  width: 48px;
-  min-width: 48px;
+  width: 58px;
+  height: 58px;
   padding: 0;
+
   place-items: center;
-  font-size: 27px;
+
+  border: 1px solid #d3d3d0;
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: #1f1f1f;
+
+  box-shadow: 0 5px 18px rgb(0 0 0 / 18%);
+
+  font-size: 32px;
+  font-weight: 400;
   line-height: 1;
+}
+
+.addButton:hover {
+  transform: scale(1.08);
+  box-shadow: 0 7px 22px rgb(0 0 0 / 23%);
 }
 
 /* ====================
@@ -96,6 +116,17 @@ button {
   position: relative;
   min-width: 0;
   padding-top: 24px;
+
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+
+  transform-origin: center center;
+}
+
+.movieCard:hover {
+  transform: scale(1.05);
+  z-index: 10;
 }
 
 /* ====================
@@ -193,7 +224,6 @@ button {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  display: block;
 }
 
 /* ====================

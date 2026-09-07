@@ -88,17 +88,26 @@ function MovieDetailModal({
 </p>
 </div>
 
-            <div className="detailMemo">
-       
+      <div className="detailTags">
+  <strong>タグ：</strong>
 
-              <div className="detailMemoBox">
-                メモ
-              </div>
-            </div>
-
-            <div className="detailTags">
-              <span>タグ</span>
-            </div>
+  <div className="detailTagList">
+    {(movie.tags || []).length > 0 ? (
+      movie.tags.map((tag) => (
+        <span
+          key={tag}
+          className="tagChip"
+        >
+          {tag}
+        </span>
+      ))
+    ) : (
+      <span className="detailTagEmpty">
+        タグなし
+      </span>
+    )}
+  </div>
+</div>
 
             <div className="detailFooter">
               <button

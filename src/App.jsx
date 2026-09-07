@@ -118,6 +118,8 @@ setShelfItems(movies)
   const [shelfItems, setShelfItems] = useState([])
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false)
   const [sortMode, setSortMode] = useState('original')
+  const [selectedTags, setSelectedTags] = useState([])
+  const [isTagMenuOpen, setIsTagMenuOpen] = useState(false)
 
   const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -264,31 +266,41 @@ try {
   alert('並び順の保存に失敗しました')
 }
 }
+const allTags = Array.from(
+  new Set(
+    movies.flatMap((movie) => movie.tags || [])
+  )
+).sort((a, b) => a.localeCompare(b, 'ja'))
+ const displayedShelfItems = (() => {
+  const normalizedSearchText = searchText
+    .trim()
+    .toLocaleLowerCase('ja-JP')
 
-    /* ====================
-     検索結果
-  ==================== */
-
-  const filteredMovies = movies.filter((movie) => {
-    const normalizedSearchText = searchText
-      .trim()
-      .toLocaleLowerCase('ja-JP')
-
-    if (!normalizedSearchText) {
-      return true
-    }
-
-    return movie.title
-      .toLocaleLowerCase('ja-JP')
-      .includes(normalizedSearchText)
-  })
-
-  const displayedShelfItems = (() => {
-  if (sortMode === 'original') {
-    return shelfItems
+  const filteredItems = shelfItems.filter((item) => {
+  if (item.type === 'pop' || item.type === 'section') {
+    return !normalizedSearchText && selectedTags.length === 0
   }
 
-  const movieItems = shelfItems.filter(
+  const matchesSearch =
+    !normalizedSearchText ||
+    item.title
+      .toLocaleLowerCase('ja-JP')
+      .includes(normalizedSearchText)
+
+  const movieTags = item.tags || []
+
+  const matchesTags =
+    selectedTags.length === 0 ||
+    selectedTags.every((tag) => movieTags.includes(tag))
+
+  return matchesSearch && matchesTags
+})
+
+  if (sortMode === 'original') {
+    return filteredItems
+  }
+
+  const movieItems = filteredItems.filter(
     (item) => item.type !== 'pop' && item.type !== 'section'
   )
 
@@ -314,7 +326,7 @@ try {
 
   let movieIndex = 0
 
-  return shelfItems.map((item) => {
+  return filteredItems.map((item) => {
     if (item.type === 'pop' || item.type === 'section') {
       return item
     }
@@ -338,13 +350,65 @@ try {
           type="search"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
-          placeholder="検索（タイトル / タグ...）"
+          placeholder="検索（タイトル）"
           aria-label="映画を検索"
         />
 
-        <button type="button">
-          グループ：すべて
-        </button>
+        <div className="tagFilter">
+  <button
+    type="button"
+    onClick={() => setIsTagMenuOpen((current) => !current)}
+  >
+    {selectedTags.length === 0
+      ? 'タグ：すべて'
+      : `タグ：${selectedTags.length}件`}
+  </button>
+
+  {isTagMenuOpen && (
+    <div className="tagFilterMenu">
+      {allTags.length > 0 ? (
+        <>
+         {allTags.map((tag) => {
+  const isSelected = selectedTags.includes(tag)
+
+  return (
+    <button
+      key={tag}
+      type="button"
+      className={isSelected ? 'tagChip isSelected' : 'tagChip'}
+      onClick={() => {
+        setSelectedTags((currentTags) => {
+          if (currentTags.includes(tag)) {
+            return currentTags.filter(
+              (currentTag) => currentTag !== tag
+            )
+          }
+
+          return [...currentTags, tag]
+        })
+      }}
+    >
+      {isSelected ? `× ${tag}` : tag}
+    </button>
+  )
+})}
+
+          {selectedTags.length > 0 && (
+           <button
+  className="tagFilterClear"
+  type="button"
+  onClick={() => setSelectedTags([])}
+>
+  すべて解除
+</button>
+          )}
+        </>
+      ) : (
+        <span>タグがありません</span>
+      )}
+    </div>
+  )}
+</div>
 
         <select
   value={sortMode}
@@ -378,7 +442,13 @@ try {
           映画カード一覧
       ==================== */}
   <DndContext
-  sensors={sortMode === 'original' ? sensors : []}
+  sensors={
+  sortMode === 'original' &&
+  !searchText.trim() &&
+  selectedTags.length === 0
+    ? sensors
+    : []
+}
   collisionDetection={closestCenter}
   onDragEnd={handleDragEnd}
 >
@@ -513,14 +583,15 @@ if (item.type === 'pop') {
     映画編集モーダル
 ==================== */}
 
-      {editingMovie && (
-       <EditMovieModal
-         movie={editingMovie}
-         onClose={() => setEditingMovie(null)}
-         onSave={handleUpdateMovie}
-         onDelete={handleDeleteMovie}
-       />
-     )}
+   {editingMovie && (
+  <EditMovieModal
+    movie={editingMovie}
+    onClose={() => setEditingMovie(null)}
+    onSave={handleUpdateMovie}
+    onDelete={handleDeleteMovie}
+    allTags={allTags}
+  />
+)}
     </main>
   )
 }

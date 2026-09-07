@@ -1054,3 +1054,183 @@ button {
   letter-spacing: 0.08em;
   text-align: center;
 }
+
+/* ====================
+   タグ絞り込み
+==================== */
+
+.tagFilter {
+  position: relative;
+}
+
+.tagFilter > button {
+  width: 100%;
+  min-height: 48px;
+}
+
+.tagFilterMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+
+  display: flex;
+  min-width: 220px;
+  max-height: 320px;
+  padding: 10px;
+
+  flex-direction: column;
+  gap: 4px;
+
+  overflow-y: auto;
+
+  border: 1px solid #d3d3d0;
+  border-radius: 10px;
+
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
+}
+
+.tagFilterMenu > button {
+  min-height: 36px;
+  margin-top: 6px;
+}
+
+/* ====================
+   タグ表示・編集
+==================== */
+
+.tagEditor {
+  display: grid;
+  gap: 10px;
+}
+
+.tagEditor > span {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.tagOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagChip {
+  display: inline-flex;
+  min-height: 32px;
+  padding: 5px 11px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #cfcfca;
+  border-radius: 999px;
+
+  background: #f7f7f5;
+  color: #333330;
+
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+button.tagChip:hover {
+  background: #eeeeeb;
+}
+
+button.tagChip.isSelected {
+  border-color: #3478c7;
+  background: #3478c7;
+  color: #ffffff;
+}
+
+/* ====================
+   新しいタグを作成
+==================== */
+
+.newTagRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.newTagRow button {
+  min-height: 46px;
+  padding: 0 14px;
+
+  border: 1px solid #cdcdc8;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #333330;
+
+  white-space: nowrap;
+}
+
+.newTagRow button:hover {
+  background: #f2f2ef;
+}
+
+/* ====================
+   映画詳細のタグ
+==================== */
+
+.detailTags {
+  display: flex;
+  margin-top: 36px;
+  margin-left: 30px;
+  margin-right: 20px;
+
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.detailTagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detailTagEmpty {
+  color: #888883;
+  font-size: 13px;
+}
+
+/* ====================
+   タグ検索のチップ表示
+==================== */
+
+.tagFilterMenu {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.tagFilterMenu .tagChip {
+  width: auto;
+  min-height: 32px;
+  padding: 5px 11px;
+}
+
+.tagFilterClear {
+  flex-basis: 100%;
+
+  width: 100%;
+  min-height: 36px;
+  margin-top: 4px;
+
+  border: 0;
+  border-top: 1px solid #e3e3df;
+  border-radius: 0;
+
+  background: transparent;
+  color: #666660;
+
+  font-size: 12px;
+}
+
+.tagFilterClear:hover {
+  background: #f3f3f1;
+}

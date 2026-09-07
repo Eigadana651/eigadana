@@ -12,6 +12,7 @@ function EditMovieModal({
   onClose,
   onSave,
   onDelete,
+  allTags = [],
 }) {
   const [title, setTitle] = useState(movie.title)
   const [year, setYear] = useState(String(movie.year))
@@ -31,6 +32,15 @@ const [posterSort, setPosterSort] = useState('japanese')
 const [selectedPosterPath, setSelectedPosterPath] = useState(null)
 
 const [isPosterModalOpen, setIsPosterModalOpen] = useState(false)
+const [selectedTags, setSelectedTags] = useState(movie.tags || [])
+const [newTag, setNewTag] = useState('')
+
+const tagOptions = Array.from(
+  new Set([
+    ...(allTags || []),
+    ...selectedTags,
+  ])
+).sort((a, b) => a.localeCompare(b, 'ja'))
 
 async function handleLoadPosters() {
   if (!selectedTmdbId) {
@@ -117,6 +127,35 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
     const temporaryUrl = URL.createObjectURL(file)
     setPosterUrl(temporaryUrl)
   }
+  function toggleTag(tag) {
+  setSelectedTags((currentTags) => {
+    if (currentTags.includes(tag)) {
+      return currentTags.filter(
+        (currentTag) => currentTag !== tag
+      )
+    }
+
+    return [...currentTags, tag]
+  })
+}
+
+function handleCreateTag() {
+  const trimmedTag = newTag.trim()
+
+  if (!trimmedTag) {
+    return
+  }
+
+  setSelectedTags((currentTags) => {
+    if (currentTags.includes(trimmedTag)) {
+      return currentTags
+    }
+
+    return [...currentTags, trimmedTag]
+  })
+
+  setNewTag('')
+}
 
   /* ====================
      編集内容を保存
@@ -132,13 +171,14 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
     }
 
     onSave({
-      ...movie,
-      title: trimmedTitle,
-      year: Number(year),
-      rating: Number(rating),
-      posterUrl,
-      tmdbId: selectedTmdbId,
-    })
+  ...movie,
+  title: trimmedTitle,
+  year: Number(year),
+  rating: Number(rating),
+  posterUrl,
+  tmdbId: selectedTmdbId,
+  tags: selectedTags,
+})
   }
 
   return (
@@ -289,6 +329,42 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
               <option value="5">5.0</option>
             </select>
           </label>
+          <div className="tagEditor">
+  <span>タグ</span>
+
+  <div className="tagOptions">
+    {tagOptions.map((tag) => {
+      const isSelected = selectedTags.includes(tag)
+
+      return (
+        <button
+          key={tag}
+          type="button"
+          className={isSelected ? 'tagChip isSelected' : 'tagChip'}
+          onClick={() => toggleTag(tag)}
+        >
+  {isSelected ? `× ${tag}` : tag}
+</button>
+      )
+    })}
+  </div>
+
+  <div className="newTagRow">
+    <input
+      type="text"
+      value={newTag}
+      onChange={(event) => setNewTag(event.target.value)}
+      placeholder="新しいタグ名"
+    />
+
+    <button
+      type="button"
+      onClick={handleCreateTag}
+    >
+      新しいタグを作成
+    </button>
+  </div>
+</div>
 
           {/* 保存・キャンセル */}
 

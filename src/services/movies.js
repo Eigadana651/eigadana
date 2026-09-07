@@ -22,6 +22,7 @@ export async function fetchMovies() {
   originalTitle: movie.original_title || '',
   director: movie.director || '',
   productionCountries: movie.production_countries || [],
+  tags: movie.tags || [],
 }))
 }
 
@@ -40,6 +41,7 @@ export async function addMovie(newMovie, sortOrder) {
   original_title: newMovie.originalTitle,
   director: newMovie.director,
   production_countries: newMovie.productionCountries,
+  tags: newMovie.tags || [],
 }
     ])
 
@@ -73,6 +75,7 @@ export async function updateMovie(updatedMovie) {
   original_title: updatedMovie.originalTitle,
   director: updatedMovie.director,
   production_countries: updatedMovie.productionCountries,
+  tags: updatedMovie.tags || [],
 })
     .eq('id', updatedMovie.id)
 

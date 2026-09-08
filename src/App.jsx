@@ -209,6 +209,38 @@ async function handleUpdateMovie(updatedMovie) {
     console.error('映画情報の更新に失敗しました:', error)
     alert('保存に失敗しました')
   }
+}async function handleSaveMovieTags(movieId, tags) {
+  try {
+    const targetMovie = movies.find(
+      (movie) => movie.id === movieId
+    )
+
+    if (!targetMovie) {
+      return
+    }
+
+    await updateMovie({
+      ...targetMovie,
+      tags,
+    })
+
+    const updatedMovies = await fetchMovies()
+
+    setMovies(updatedMovies)
+    setShelfItems(updatedMovies)
+
+    const updatedEditingMovie = updatedMovies.find(
+      (movie) => movie.id === movieId
+    )
+
+    if (updatedEditingMovie) {
+      setEditingMovie(updatedEditingMovie)
+    }
+  } catch (error) {
+    console.error('タグの保存に失敗しました:', error)
+    alert('タグの保存に失敗しました')
+    throw error
+  }
 }
 
 function handleAddPop(text) {
@@ -266,11 +298,24 @@ try {
   alert('並び順の保存に失敗しました')
 }
 }
-const allTags = Array.from(
-  new Set(
-    movies.flatMap((movie) => movie.tags || [])
-  )
-).sort((a, b) => a.localeCompare(b, 'ja'))
+const tagUsageCounts = movies.reduce((counts, movie) => {
+  ;(movie.tags || []).forEach((tag) => {
+    counts[tag] = (counts[tag] || 0) + 1
+  })
+
+  return counts
+}, {})
+
+const allTags = Object.keys(tagUsageCounts).sort((a, b) => {
+  const countDifference =
+    tagUsageCounts[b] - tagUsageCounts[a]
+
+  if (countDifference !== 0) {
+    return countDifference
+  }
+
+  return a.localeCompare(b, 'ja')
+})
  const displayedShelfItems = (() => {
   const normalizedSearchText = searchText
     .trim()
@@ -583,11 +628,12 @@ if (item.type === 'pop') {
     映画編集モーダル
 ==================== */}
 
-   {editingMovie && (
+  {editingMovie && (
   <EditMovieModal
     movie={editingMovie}
     onClose={() => setEditingMovie(null)}
     onSave={handleUpdateMovie}
+    onSaveTags={handleSaveMovieTags}
     onDelete={handleDeleteMovie}
     allTags={allTags}
   />

@@ -11,6 +11,7 @@ function EditMovieModal({
   movie,
   onClose,
   onSave,
+  onSaveTags,
   onDelete,
   allTags = [],
 }) {
@@ -34,13 +35,17 @@ const [selectedPosterPath, setSelectedPosterPath] = useState(null)
 const [isPosterModalOpen, setIsPosterModalOpen] = useState(false)
 const [selectedTags, setSelectedTags] = useState(movie.tags || [])
 const [newTag, setNewTag] = useState('')
+const [isTagCreateModalOpen, setIsTagCreateModalOpen] = useState(false)
+const [isTagSelectModalOpen, setIsTagSelectModalOpen] = useState(false)
+const [draftTags, setDraftTags] = useState(movie.tags || [])
 
 const tagOptions = Array.from(
   new Set([
     ...(allTags || []),
     ...selectedTags,
+    ...draftTags,
   ])
-).sort((a, b) => a.localeCompare(b, 'ja'))
+)
 
 async function handleLoadPosters() {
   if (!selectedTmdbId) {
@@ -138,6 +143,17 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
     return [...currentTags, tag]
   })
 }
+function toggleDraftTag(tag) {
+  setDraftTags((currentTags) => {
+    if (currentTags.includes(tag)) {
+      return currentTags.filter(
+        (currentTag) => currentTag !== tag
+      )
+    }
+
+    return [...currentTags, tag]
+  })
+}
 
 function handleCreateTag() {
   const trimmedTag = newTag.trim()
@@ -146,7 +162,7 @@ function handleCreateTag() {
     return
   }
 
-  setSelectedTags((currentTags) => {
+  setDraftTags((currentTags) => {
     if (currentTags.includes(trimmedTag)) {
       return currentTags
     }
@@ -155,6 +171,8 @@ function handleCreateTag() {
   })
 
   setNewTag('')
+  setIsTagCreateModalOpen(false)
+  setIsTagSelectModalOpen(true)
 }
 
   /* ====================
@@ -329,40 +347,31 @@ function handleCreateTag() {
               <option value="5">5.0</option>
             </select>
           </label>
-          <div className="tagEditor">
+         <div className="tagEditor">
   <span>タグ</span>
 
   <div className="tagOptions">
-    {tagOptions.map((tag) => {
-      const isSelected = selectedTags.includes(tag)
-
-      return (
-        <button
-          key={tag}
-          type="button"
-          className={isSelected ? 'tagChip isSelected' : 'tagChip'}
-          onClick={() => toggleTag(tag)}
-        >
-  {isSelected ? `× ${tag}` : tag}
-</button>
-      )
-    })}
-  </div>
-
-  <div className="newTagRow">
-    <input
-      type="text"
-      value={newTag}
-      onChange={(event) => setNewTag(event.target.value)}
-      placeholder="新しいタグ名"
-    />
+    {selectedTags.map((tag) => (
+  <button
+    key={tag}
+    type="button"
+    className="tagChip isSelected"
+    onClick={() => toggleTag(tag)}
+  >
+    × {tag}
+  </button>
+))}
 
     <button
-      type="button"
-      onClick={handleCreateTag}
-    >
-      新しいタグを作成
-    </button>
+  type="button"
+  className="tagChip"
+  onClick={() => {
+    setDraftTags([...selectedTags])
+    setIsTagSelectModalOpen(true)
+  }}
+>
+  タグを追加
+</button>
   </div>
 </div>
 
@@ -417,6 +426,179 @@ function handleCreateTag() {
   setSelectedPosterPath={setSelectedPosterPath}
   setPosterUrl={setPosterUrl}
 />
+{isTagSelectModalOpen && (
+  <div
+    className="tagSelectOverlay"
+    onMouseDown={(event) => {
+      if (event.target === event.currentTarget) {
+        setDraftTags([...selectedTags])
+        setIsTagSelectModalOpen(false)
+      }
+    }}
+  >
+    <section
+      className="tagSelectModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tag-select-title"
+    >
+      <div className="tagSelectHeader">
+        <h3 id="tag-select-title">
+          タグを選択
+        </h3>
+
+        <button
+  type="button"
+  className="closeButton"
+  onClick={() => {
+  setDraftTags([...selectedTags])
+  setIsTagSelectModalOpen(false)
+}}
+          aria-label="閉じる"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="tagSelectCurrent">
+  <span>選択中</span>
+
+  <div className="tagOptions">
+    {draftTags.length > 0 ? (
+      draftTags.map((tag) => (
+        <button
+          key={tag}
+          type="button"
+          className="tagChip isSelected"
+          onClick={() => toggleDraftTag(tag)}
+        >
+          × {tag}
+        </button>
+      ))
+    ) : (
+      <span className="tagSelectEmpty">
+        タグなし
+      </span>
+    )}
+  </div>
+</div>
+
+<div className="tagSelectAll">
+  <span>タグ一覧</span>
+
+  <div className="tagOptions">
+    {tagOptions.length > 0 ? (
+      tagOptions.map((tag) => {
+        const isSelected = draftTags.includes(tag)
+
+        return (
+          <button
+            key={tag}
+            type="button"
+            className={
+              isSelected
+                ? 'tagChip isSelected'
+                : 'tagChip'
+            }
+            onClick={() => toggleDraftTag(tag)}
+          >
+            {isSelected ? `× ${tag}` : tag}
+          </button>
+        )
+      })
+    ) : (
+      <span className="tagSelectEmpty">
+        まだタグがありません
+      </span>
+    )}
+  </div>
+</div>
+
+      <div className="tagSelectActions">
+  <button
+    type="button"
+    className="tagCreateOpenButton"
+    onClick={() => {
+      setIsTagSelectModalOpen(false)
+      setIsTagCreateModalOpen(true)
+    }}
+  >
+    新しいタグを作成
+  </button>
+
+ <button
+  type="button"
+  className="saveButton"
+  onClick={async () => {
+    try {
+      await onSaveTags(movie.id, draftTags)
+
+      setSelectedTags([...draftTags])
+      setIsTagSelectModalOpen(false)
+    } catch (error) {
+      console.error('タグの保存に失敗しました:', error)
+    }
+  }}
+>
+  保存
+</button>
+</div>
+    </section>
+  </div>
+)}
+{isTagCreateModalOpen && (
+  <div
+    className="tagCreateOverlay"
+    onMouseDown={(event) => {
+      if (event.target === event.currentTarget) {
+  setIsTagCreateModalOpen(false)
+  setIsTagSelectModalOpen(true)
+  setNewTag('')
+}
+    }}
+  >
+    <section
+      className="tagCreateModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tag-create-title"
+    >
+      <h3 id="tag-create-title">
+        新しいタグを作成
+      </h3>
+
+      <input
+        type="text"
+        value={newTag}
+        onChange={(event) => setNewTag(event.target.value)}
+        placeholder="タグ名を入力"
+        autoFocus
+      />
+
+      <div className="tagCreateActions">
+        <button
+          type="button"
+          className="cancelButton"
+          onClick={() => {
+  setIsTagCreateModalOpen(false)
+  setIsTagSelectModalOpen(true)
+  setNewTag('')
+}}
+        >
+          キャンセル
+        </button>
+
+        <button
+          type="button"
+          className="saveButton"
+          onClick={handleCreateTag}
+        >
+          作成
+        </button>
+      </div>
+    </section>
+  </div>
+)}
     </div>
   )
 }

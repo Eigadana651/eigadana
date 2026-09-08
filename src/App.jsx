@@ -350,24 +350,30 @@ const allTags = Object.keys(tagUsageCounts).sort((a, b) => {
   )
 
   const sortedMovies = [...movieItems].sort((a, b) => {
-    if (sortMode === 'year-asc') {
-      return a.year - b.year
-    }
+  if (sortMode === 'year-asc') {
+    const aDate = a.releaseDate || `${a.year}-01-01`
+    const bDate = b.releaseDate || `${b.year}-01-01`
 
-    if (sortMode === 'year-desc') {
-      return b.year - a.year
-    }
+    return aDate.localeCompare(bDate)
+  }
 
-    if (sortMode === 'rating-desc') {
-      return b.rating - a.rating
-    }
+  if (sortMode === 'year-desc') {
+    const aDate = a.releaseDate || `${a.year}-01-01`
+    const bDate = b.releaseDate || `${b.year}-01-01`
 
-    if (sortMode === 'rating-asc') {
-      return a.rating - b.rating
-    }
+    return bDate.localeCompare(aDate)
+  }
 
-    return 0
-  })
+  if (sortMode === 'rating-desc') {
+    return b.rating - a.rating
+  }
+
+  if (sortMode === 'rating-asc') {
+    return a.rating - b.rating
+  }
+
+  return 0
+})
 
   let movieIndex = 0
 

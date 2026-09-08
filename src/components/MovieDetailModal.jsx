@@ -60,10 +60,14 @@ function MovieDetailModal({
 
             <div className="detailMeta">
   <p>
-  <strong>公　開：</strong>
-  <span className="detailValue">
-    {movie.year}年
-  </span>
+  <strong>公開日：</strong>
+<span className="detailValue">
+  {movie.releaseDate
+    ? `${Number(movie.releaseDate.slice(0, 4))}年${Number(
+        movie.releaseDate.slice(5, 7)
+      )}月${Number(movie.releaseDate.slice(8, 10))}日`
+    : `${movie.year}年`}
+</span>
 </p>
 
 <p>

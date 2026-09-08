@@ -15,10 +15,11 @@ function EditMovieModal({
   onDelete,
   allTags = [],
 }) {
-  const [title, setTitle] = useState(movie.title)
-  const [year, setYear] = useState(String(movie.year))
-  const [rating, setRating] = useState(String(movie.rating))
-  const [posterUrl, setPosterUrl] = useState(movie.posterUrl || '')
+ const [title, setTitle] = useState(movie.title)
+const [year, setYear] = useState(String(movie.year))
+const [releaseDate, setReleaseDate] = useState(movie.releaseDate || '')
+const [rating, setRating] = useState(String(movie.rating))
+const [posterUrl, setPosterUrl] = useState(movie.posterUrl || '')
 
   const [searchResults, setSearchResults] = useState([])
 const [isSearching, setIsSearching] = useState(false)
@@ -188,10 +189,13 @@ function handleCreateTag() {
       return
     }
 
-    onSave({
+   onSave({
   ...movie,
   title: trimmedTitle,
-  year: Number(year),
+  year: releaseDate
+    ? Number(releaseDate.slice(0, 4))
+    : Number(year),
+  releaseDate,
   rating: Number(rating),
   posterUrl,
   tmdbId: selectedTmdbId,
@@ -310,21 +314,17 @@ function handleCreateTag() {
             />
           </label>
 
-          {/* 公開年 */}
+         {/* 公開日 */}
 
-          <label>
-            <span>公開年</span>
+<label>
+  <span>公開日</span>
 
-            <input
-              type="number"
-              value={year}
-              onChange={(event) => setYear(event.target.value)}
-              min="1880"
-              max="2100"
-              required
-            />
-          </label>
-
+  <input
+    type="date"
+    value={releaseDate}
+    onChange={(event) => setReleaseDate(event.target.value)}
+  />
+</label>
           {/* 評価 */}
 
           <label>

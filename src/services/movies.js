@@ -20,9 +20,10 @@ export async function fetchMovies() {
   sortOrder: movie.sort_order,
 
   originalTitle: movie.original_title || '',
-  director: movie.director || '',
-  productionCountries: movie.production_countries || [],
-  tags: movie.tags || [],
+director: movie.director || '',
+productionCountries: movie.production_countries || [],
+tags: movie.tags || [],
+releaseDate: movie.release_date || '',
 }))
 }
 
@@ -39,9 +40,10 @@ export async function addMovie(newMovie, sortOrder) {
   sort_order: sortOrder,
 
   original_title: newMovie.originalTitle,
-  director: newMovie.director,
-  production_countries: newMovie.productionCountries,
-  tags: newMovie.tags || [],
+director: newMovie.director,
+production_countries: newMovie.productionCountries,
+tags: newMovie.tags || [],
+release_date: newMovie.releaseDate || null,
 }
     ])
 
@@ -73,9 +75,10 @@ export async function updateMovie(updatedMovie) {
   sort_order: updatedMovie.sortOrder,
 
   original_title: updatedMovie.originalTitle,
-  director: updatedMovie.director,
-  production_countries: updatedMovie.productionCountries,
-  tags: updatedMovie.tags || [],
+director: updatedMovie.director,
+production_countries: updatedMovie.productionCountries,
+tags: updatedMovie.tags || [],
+release_date: updatedMovie.releaseDate || null,
 })
     .eq('id', updatedMovie.id)
 

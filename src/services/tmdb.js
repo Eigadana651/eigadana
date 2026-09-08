@@ -78,12 +78,13 @@ export async function fetchTmdbMovieDetails(movieId) {
   )
 
   return {
-    originalTitle: movie.original_title,
-    productionCountries:
-  movie.production_countries?.map(
-    (country) =>
-      COUNTRY_NAMES[country.iso_3166_1] || country.name
-  ) ?? [],
-    director: director?.name ?? '',
-  }
+  originalTitle: movie.original_title,
+  productionCountries:
+movie.production_countries?.map(
+  (country) =>
+    COUNTRY_NAMES[country.iso_3166_1] || country.name
+) ?? [],
+  director: director?.name ?? '',
+  releaseDate: movie.release_date || '',
+}
 }

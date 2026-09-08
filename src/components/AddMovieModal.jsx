@@ -160,34 +160,37 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
     return
   }
 
-  let originalTitle = ''
-  let director = ''
-  let productionCountries = []
+ let originalTitle = ''
+let director = ''
+let productionCountries = []
+let releaseDate = ''
 
-  if (selectedTmdbId) {
-    try {
-      const details = await fetchTmdbMovieDetails(selectedTmdbId)
+if (selectedTmdbId) {
+  try {
+    const details = await fetchTmdbMovieDetails(selectedTmdbId)
 
-      originalTitle = details.originalTitle
-      director = details.director
-      productionCountries = details.productionCountries
-    } catch (error) {
-      console.error('TMDb詳細取得に失敗しました:', error)
-    }
+    originalTitle = details.originalTitle
+    director = details.director
+    productionCountries = details.productionCountries
+    releaseDate = details.releaseDate
+  } catch (error) {
+    console.error('TMDb詳細取得に失敗しました:', error)
   }
+}
 
-  onAdd({
-    id: crypto.randomUUID(),
-    title: trimmedTitle,
-    year: numericYear,
-    rating: numericRating,
-    posterUrl,
-    tmdbId: selectedTmdbId,
+onAdd({
+  id: crypto.randomUUID(),
+  title: trimmedTitle,
+  year: numericYear,
+  rating: numericRating,
+  posterUrl,
+  tmdbId: selectedTmdbId,
 
-    originalTitle,
-    director,
-    productionCountries,
-  })
+  originalTitle,
+  director,
+  productionCountries,
+  releaseDate,
+})
 }
   
 

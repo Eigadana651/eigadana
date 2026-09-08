@@ -8,7 +8,6 @@ import {
   searchTmdbMovie,
   fetchTmdbPosters,
 } from './services/tmdb'
-import EditMovieModal from './components/EditMovieModal'
 import {
   fetchMovies,
   addMovie,

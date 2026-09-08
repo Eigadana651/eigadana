@@ -73,9 +73,10 @@ export async function fetchTmdbMovieDetails(movieId) {
   const movie = await movieResponse.json()
   const credits = await creditsResponse.json()
 
-  const director = credits.crew?.find(
-    (person) => person.job === 'Director'
-  )
+  const directors =
+  credits.crew
+    ?.filter((person) => person.job === 'Director')
+    .map((person) => person.name) ?? []
 
   return {
   originalTitle: movie.original_title,
@@ -84,7 +85,7 @@ movie.production_countries?.map(
   (country) =>
     COUNTRY_NAMES[country.iso_3166_1] || country.name
 ) ?? [],
-  director: director?.name ?? '',
+  director: directors.join(' / '),
   releaseDate: movie.release_date || '',
 }
 }

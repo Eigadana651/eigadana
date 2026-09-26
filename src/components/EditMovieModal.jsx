@@ -14,6 +14,7 @@ function EditMovieModal({
   onSaveTags,
   onDelete,
   allTags = [],
+  onCreateMasterTag,
 }) {
  const [title, setTitle] = useState(movie.title)
 const [year, setYear] = useState(String(movie.year))
@@ -156,25 +157,32 @@ function toggleDraftTag(tag) {
   })
 }
 
-function handleCreateTag() {
+async function handleCreateTag() {
   const trimmedTag = newTag.trim()
 
   if (!trimmedTag) {
     return
   }
 
-  setDraftTags((currentTags) => {
-    if (currentTags.includes(trimmedTag)) {
-      return currentTags
-    }
+  try {
+    await onCreateMasterTag(trimmedTag)
 
-    return [...currentTags, trimmedTag]
-  })
+    setDraftTags((currentTags) => {
+      if (currentTags.includes(trimmedTag)) {
+        return currentTags
+      }
 
-  setNewTag('')
-  setIsTagCreateModalOpen(false)
-  setIsTagSelectModalOpen(true)
+      return [...currentTags, trimmedTag]
+    })
+
+    setNewTag('')
+    setIsTagCreateModalOpen(false)
+    setIsTagSelectModalOpen(true)
+  } catch (error) {
+    console.error('タグの作成に失敗しました:', error)
+  }
 }
+
 
   /* ====================
      編集内容を保存

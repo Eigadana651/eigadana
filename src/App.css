@@ -672,14 +672,20 @@ button {
 }
 
 .detailMeta p {
+  display: grid;
+  width: 100%;
   margin: 0;
-  
+
+  grid-template-columns: 110px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: start;
+
   font-size: 21px;
   line-height: 1.35;
 }
 
 .detailMeta .starRating {
-  font-size: 24px;
+  font-size: 30px;
 }
 
 .detailValue .starRating {
@@ -1067,6 +1073,13 @@ button {
   width: 100%;
   min-height: 48px;
 }
+.tagFilter:has(.tagFilterMenu) > button {
+  border-color: #3478c7;
+  background: #eef5ff;
+  color: #245d9c;
+
+  box-shadow: 0 0 0 3px rgb(52 120 199 / 12%);
+}
 
 .tagFilterMenu {
   position: absolute;
@@ -1176,14 +1189,14 @@ button.tagChip.isSelected {
 ==================== */
 
 .detailTags {
-  display: flex;
+  display: grid;
   margin-top: 36px;
   margin-left: 30px;
   margin-right: 20px;
 
-  flex-direction: column;
-  gap: 10px;
-  align-items: flex-start;
+  grid-template-columns: 110px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: start;
 }
 
 .detailTagList {
@@ -1235,6 +1248,27 @@ button.tagChip.isSelected {
   background: #f3f3f1;
 }
 
+.tagManageButton {
+  flex-basis: 100%;
+
+  width: 100%;
+  min-height: 36px;
+  margin-top: 4px;
+
+  border: 0;
+  border-top: 1px solid #e3e3df;
+  border-radius: 0;
+
+  background: transparent;
+  color: #245d9c;
+
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.tagManageButton:hover {
+  background: #eef5ff;
+}
 /* ====================
    タグ選択モーダル
 ==================== */
@@ -1484,4 +1518,126 @@ button.tagChip.isSelected {
   min-width: 96px;
   min-height: 42px;
   padding: 0 18px;
+}
+
+/* ====================
+   タグ管理モーダル
+==================== */
+
+.tagManagerModal {
+  width: min(100%, 620px);
+}
+
+.tagManagerContent {
+  display: grid;
+  gap: 18px;
+
+  padding: 22px;
+}
+
+.tagManagerCreate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.tagManagerCreate input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 13px;
+
+  border: 1px solid #cdcdc8;
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.tagManagerCreate input:focus {
+  border-color: #6f8fc7;
+  outline: 3px solid rgb(111 143 199 / 18%);
+}
+
+.tagManagerCreate button {
+  min-width: 84px;
+  min-height: 44px;
+  padding: 0 16px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: #245d9c;
+  color: #ffffff;
+
+  font-weight: 650;
+}
+
+.tagManagerCreate button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.tagManagerList {
+  display: flex;
+  max-height: 420px;
+
+  flex-direction: column;
+
+  overflow-y: auto;
+
+  border: 1px solid #deded9;
+  border-radius: 10px;
+
+  background: #ffffff;
+}
+
+.tagManagerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  min-height: 54px;
+  padding: 8px 10px;
+
+  align-items: center;
+
+  border-bottom: 1px solid #ecece8;
+}
+
+.tagManagerRow:last-child {
+  border-bottom: 0;
+}
+
+.tagManagerRow > span {
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+
+  font-weight: 600;
+}
+
+.tagManagerRow input {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 10px;
+
+  border: 1px solid #cdcdc8;
+  border-radius: 7px;
+}
+
+.tagManagerRow button {
+  min-height: 34px;
+  padding: 0 11px;
+
+  border: 1px solid #d3d3d0;
+  border-radius: 7px;
+
+  background: #ffffff;
+}
+
+.tagManagerRow button:hover {
+  background: #f3f3f1;
+}
+
+.tagManagerRow button:last-child {
+  color: #b33a3a;
 }

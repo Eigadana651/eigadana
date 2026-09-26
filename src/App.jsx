@@ -8,6 +8,9 @@ import {
   searchTmdbMovie,
   fetchTmdbPosters,
 } from './services/tmdb'
+
+import EditMovieModal from './components/EditMovieModal'
+
 import {
   fetchMovies,
   addMovie,
@@ -15,6 +18,8 @@ import {
   updateMovie,
   updateMovieOrder,
 } from './services/movies'
+
+import { fetchTags, createTag, renameTag, deleteTag } from './services/tags'
 
 import {
   DndContext,
@@ -36,7 +41,7 @@ import SectionCard from './components/SectionCard'
 import PopCard from './components/PopCard'
 import PopCreateModal from './components/PopCreateModal'
 import AddItemModal from './components/AddItemModal'
-
+import TagManagerModal from './components/TagManagerModal'
 
 
 /* ====================
@@ -93,19 +98,22 @@ function App() {
   ==================== */
 
   useEffect(() => {
-  async function loadMovies() {
+  async function loadData() {
     try {
-      const movies = await fetchMovies()
-setMovies(movies)
+      const [movies, tags] = await Promise.all([
+        fetchMovies(),
+        fetchTags(),
+      ])
 
-setShelfItems(movies)
-
+      setMovies(movies)
+      setShelfItems(movies)
+      setTagMaster(tags)
     } catch (error) {
-      console.error('映画の読み込みに失敗しました:', error)
+      console.error('データの読み込みに失敗しました:', error)
     }
   }
 
-  loadMovies()
+  loadData()
 }, [])
 
   const [movies, setMovies] = useState([])
@@ -119,6 +127,8 @@ setShelfItems(movies)
   const [sortMode, setSortMode] = useState('original')
   const [selectedTags, setSelectedTags] = useState([])
   const [isTagMenuOpen, setIsTagMenuOpen] = useState(false)
+  const [tagMaster, setTagMaster] = useState([])
+  const [isTagManagerOpen, setIsTagManagerOpen] = useState(false)
 
   const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -242,6 +252,167 @@ async function handleUpdateMovie(updatedMovie) {
   }
 }
 
+async function handleCreateMasterTag(name) {
+  try {
+    if (tagMaster.some((tag) => tag.name === name)) {
+      alert('同じ名前のタグがすでにあります')
+      return
+    }
+
+    const createdTag = await createTag(name)
+
+    setTagMaster((currentTags) => [
+      ...currentTags,
+      createdTag,
+    ])
+  } catch (error) {
+    console.error('タグの追加に失敗しました:', error)
+    alert('タグの追加に失敗しました')
+    throw error
+  }
+}
+
+async function handleRenameMasterTag(tagId, newName) {
+  const targetTag = tagMaster.find(
+    (tag) => tag.id === tagId
+  )
+
+  if (!targetTag) {
+    return
+  }
+
+  if (targetTag.name === newName) {
+    return
+  }
+
+  if (
+    tagMaster.some(
+      (tag) => tag.id !== tagId && tag.name === newName
+    )
+  ) {
+    alert('同じ名前のタグがすでにあります')
+    return
+  }
+
+  try {
+    const renamedTag = await renameTag(tagId, newName)
+
+    const affectedMovies = movies.filter((movie) =>
+      (movie.tags || []).includes(targetTag.name)
+    )
+
+    const updatedMovies = affectedMovies.map((movie) => ({
+      ...movie,
+      tags: Array.from(
+        new Set(
+          (movie.tags || []).map((tag) =>
+            tag === targetTag.name ? newName : tag
+          )
+        )
+      ),
+    }))
+
+    await Promise.all(
+      updatedMovies.map((movie) => updateMovie(movie))
+    )
+
+    const updatedMovieMap = new Map(
+      updatedMovies.map((movie) => [movie.id, movie])
+    )
+
+    setTagMaster((currentTags) =>
+      currentTags.map((tag) =>
+        tag.id === tagId ? renamedTag : tag
+      )
+    )
+
+    setMovies((currentMovies) =>
+      currentMovies.map(
+        (movie) => updatedMovieMap.get(movie.id) || movie
+      )
+    )
+
+    setShelfItems((currentItems) =>
+      currentItems.map(
+        (item) => updatedMovieMap.get(item.id) || item
+      )
+    )
+
+    setSelectedTags((currentTags) =>
+      Array.from(
+        new Set(
+          currentTags.map((tag) =>
+            tag === targetTag.name ? newName : tag
+          )
+        )
+      )
+    )
+  } catch (error) {
+    console.error('タグ名の変更に失敗しました:', error)
+    alert('タグ名の変更に失敗しました')
+    throw error
+  }
+}
+
+async function handleDeleteMasterTag(tagId) {
+  const targetTag = tagMaster.find(
+    (tag) => tag.id === tagId
+  )
+
+  if (!targetTag) {
+    return
+  }
+
+  try {
+    await deleteTag(tagId)
+
+    const affectedMovies = movies.filter((movie) =>
+      (movie.tags || []).includes(targetTag.name)
+    )
+
+    const updatedMovies = affectedMovies.map((movie) => ({
+      ...movie,
+      tags: (movie.tags || []).filter(
+        (tag) => tag !== targetTag.name
+      ),
+    }))
+
+    await Promise.all(
+      updatedMovies.map((movie) => updateMovie(movie))
+    )
+
+    const updatedMovieMap = new Map(
+      updatedMovies.map((movie) => [movie.id, movie])
+    )
+
+    setTagMaster((currentTags) =>
+      currentTags.filter((tag) => tag.id !== tagId)
+    )
+
+    setMovies((currentMovies) =>
+      currentMovies.map(
+        (movie) => updatedMovieMap.get(movie.id) || movie
+      )
+    )
+
+    setShelfItems((currentItems) =>
+      currentItems.map(
+        (item) => updatedMovieMap.get(item.id) || item
+      )
+    )
+
+    setSelectedTags((currentTags) =>
+      currentTags.filter(
+        (tag) => tag !== targetTag.name
+      )
+    )
+  } catch (error) {
+    console.error('タグの削除に失敗しました:', error)
+    alert('タグの削除に失敗しました')
+    throw error
+  }
+}
+
 function handleAddPop(text) {
   const newPop = {
     id: `pop-${Date.now()}`,
@@ -305,16 +476,18 @@ const tagUsageCounts = movies.reduce((counts, movie) => {
   return counts
 }, {})
 
-const allTags = Object.keys(tagUsageCounts).sort((a, b) => {
-  const countDifference =
-    tagUsageCounts[b] - tagUsageCounts[a]
+const allTags = tagMaster
+  .map((tag) => tag.name)
+  .sort((a, b) => {
+    const countDifference =
+      (tagUsageCounts[b] || 0) - (tagUsageCounts[a] || 0)
 
-  if (countDifference !== 0) {
-    return countDifference
-  }
+    if (countDifference !== 0) {
+      return countDifference
+    }
 
-  return a.localeCompare(b, 'ja')
-})
+    return a.localeCompare(b, 'ja')
+  })
  const displayedShelfItems = (() => {
   const normalizedSearchText = searchText
     .trim()
@@ -456,6 +629,16 @@ const allTags = Object.keys(tagUsageCounts).sort((a, b) => {
       ) : (
         <span>タグがありません</span>
       )}
+            <button
+        className="tagManageButton"
+        type="button"
+        onClick={() => {
+          setIsTagManagerOpen(true)
+          setIsTagMenuOpen(false)
+        }}
+      >
+        タグを管理
+      </button>
     </div>
   )}
 </div>
@@ -613,6 +796,15 @@ if (item.type === 'pop') {
     onAdd={handleAddPop}
   />
 )}
+{isTagManagerOpen && (
+  <TagManagerModal
+    tagMaster={tagMaster}
+    onClose={() => setIsTagManagerOpen(false)}
+    onCreateTag={handleCreateMasterTag}
+    onRenameTag={handleRenameMasterTag}
+    onDeleteTag={handleDeleteMasterTag}
+  />
+)}
 
       {/* ====================
           映画詳細モーダル
@@ -641,6 +833,7 @@ if (item.type === 'pop') {
     onSaveTags={handleSaveMovieTags}
     onDelete={handleDeleteMovie}
     allTags={allTags}
+    onCreateMasterTag={handleCreateMasterTag}
   />
 )}
     </main>

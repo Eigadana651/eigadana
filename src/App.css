@@ -30,7 +30,7 @@ button {
 
 .app {
   min-height: 100vh;
-  padding: 28px 48px 56px;
+  padding: 28px 24px 56px;
 }
 
 /* ====================
@@ -38,14 +38,29 @@ button {
 ==================== */
 
 .toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
   display: grid;
-  grid-template-columns:
-    minmax(240px, 360px)
-    auto
-    auto;
+ grid-template-columns:
+  minmax(240px, 1fr)
+  300px
+  260px
+  auto;
   gap: 14px;
   align-items: center;
-  margin-bottom: 34px;
+
+  margin:
+  -28px calc(50% - 50vw) 34px;
+  padding:
+    18px 24px;
+
+  border-bottom: 1px solid #d9dde2;
+
+  background: #e9edf2;
+
+  box-shadow: 0 3px 12px rgb(0 0 0 / 6%);
 }
 
 
@@ -70,7 +85,26 @@ button {
   display: flex;
   gap: 8px;
 }
+.zoomControls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 
+  white-space: nowrap;
+}
+
+.zoomControls button {
+  width: 48px;
+  padding: 0;
+}
+
+.zoomControls span {
+  min-width: 34px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 650;
+}
 .addButton {
   position: fixed;
   right: 28px;
@@ -108,8 +142,8 @@ button {
 
 .movieGrid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 34px 24px;
+  grid-template-columns: repeat(var(--column-count, 7), minmax(0, 1fr));
+  gap: 16px 14px;
 }
 
 .movieCard {
@@ -570,9 +604,14 @@ button {
 ==================== */
 
 @media (max-width: 1100px) {
-  .toolbar {
-    grid-template-columns: 1fr 1fr;
-  }
+ .toolbar {
+  grid-template-columns:
+    minmax(200px, 1fr)
+    220px
+    220px
+    auto;
+  gap: 10px;
+}
 
   .movieGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -580,6 +619,9 @@ button {
 }
 
 @media (max-width: 620px) {
+    .toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
   .posterInputSection {
     grid-template-columns: 1fr;
   }

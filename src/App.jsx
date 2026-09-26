@@ -129,7 +129,16 @@ function App() {
   const [isTagMenuOpen, setIsTagMenuOpen] = useState(false)
   const [tagMaster, setTagMaster] = useState([])
   const [isTagManagerOpen, setIsTagManagerOpen] = useState(false)
+  const [columnCount, setColumnCount] = useState(() => {
+  const savedColumnCount = Number(localStorage.getItem('movieColumnCount'))
 
+  return savedColumnCount >= 5 && savedColumnCount <= 9
+    ? savedColumnCount
+    : 7
+})
+useEffect(() => {
+  localStorage.setItem('movieColumnCount', String(columnCount))
+}, [columnCount])
   const sensors = useSensors(
   useSensor(PointerSensor, {
     activationConstraint: {
@@ -668,7 +677,33 @@ const allTags = tagMaster
     評価順：低い順
   </option>
 </select>
+<div className="zoomControls">
+  <button
+    type="button"
+    onClick={() =>
+      setColumnCount((current) => Math.max(5, current - 1))
+    }
+    disabled={columnCount === 5}
+    aria-label="列数を減らす"
+    title="列数を減らす"
+  >
+    −
+  </button>
 
+  <span>{columnCount}列</span>
+
+  <button
+    type="button"
+    onClick={() =>
+      setColumnCount((current) => Math.min(9, current + 1))
+    }
+    disabled={columnCount === 9}
+    aria-label="列数を増やす"
+    title="列数を増やす"
+  >
+    ＋
+  </button>
+</div>
       </header>
 
             {/* ====================
@@ -689,7 +724,12 @@ const allTags = tagMaster
     items={displayedShelfItems.map((item) => item.id)}
     strategy={rectSortingStrategy}
   >
-    <section className="movieGrid">
+ <section
+  className="movieGrid"
+  style={{
+    '--column-count': columnCount,
+  }}
+>
       {displayedShelfItems.map((item) => {
 
 if (item.type === 'section') {

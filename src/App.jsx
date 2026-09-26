@@ -827,6 +827,8 @@ if (item.type === 'pop') {
     onClose={() => setIsAddModalOpen(false)}
     onCancel={() => setIsAddModalOpen(false)}
     onAdd={handleAddMovie}
+    allTags={allTags}
+    onCreateMasterTag={handleCreateMasterTag}
   />
 )}
 

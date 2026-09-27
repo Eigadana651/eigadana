@@ -7,6 +7,7 @@ import { useState } from 'react'
 import '../App.css'
 import {
   searchTmdbMovie,
+  fetchTmdbMovieById,
   fetchTmdbPosters,
   fetchTmdbMovieDetails,
 } from '../services/tmdb'
@@ -169,12 +170,19 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
     setPosterFileName(file.name)
   }
 
-  async function handleTitleChange(event) {
+ async function handleTitleChange(event) {
   const value = event.target.value
+  const trimmedValue = value.trim()
+  const isNumericId = /^\d+$/.test(trimmedValue)
 
   setTitle(value)
 
-  if (value.trim().length < 2) {
+  if (!trimmedValue) {
+    setSearchResults([])
+    return
+  }
+
+  if (!isNumericId && trimmedValue.length < 2) {
     setSearchResults([])
     return
   }
@@ -182,8 +190,26 @@ const sortedPosterOptions = [...posterOptions].sort((a, b) => {
   setIsSearching(true)
 
   try {
-    const results = await searchTmdbMovie(value)
-    setSearchResults(results.slice(0, 5))
+    const [titleResults, idResult] = await Promise.all([
+      trimmedValue.length >= 2
+        ? searchTmdbMovie(trimmedValue)
+        : Promise.resolve([]),
+
+      isNumericId
+        ? fetchTmdbMovieById(trimmedValue)
+        : Promise.resolve(null),
+    ])
+
+    const combinedResults = idResult
+      ? [
+          idResult,
+          ...titleResults.filter(
+            (movie) => movie.id !== idResult.id
+          ),
+        ]
+      : titleResults
+
+    setSearchResults(combinedResults.slice(0, 5))
   } catch (error) {
     console.error(error)
   } finally {

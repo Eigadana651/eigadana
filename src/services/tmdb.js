@@ -35,6 +35,23 @@ export async function searchTmdbMovie(title) {
   return data.results
 }
 
+export async function fetchTmdbMovieById(movieId) {
+  const response = await fetch(
+    `https://api.themoviedb.org/3/movie/${movieId}?language=ja-JP`,
+    {
+      headers: {
+        Authorization: `Bearer ${TMDB_TOKEN}`,
+      },
+    }
+  )
+
+  if (!response.ok) {
+    return null
+  }
+
+  return await response.json()
+}
+
 export async function fetchTmdbPosters(movieId) {
   const response = await fetch(
     `https://api.themoviedb.org/3/movie/${movieId}/images?include_image_language=ja,en,null`,

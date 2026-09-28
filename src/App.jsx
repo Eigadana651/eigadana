@@ -497,6 +497,15 @@ const allTags = tagMaster
 
     return a.localeCompare(b, 'ja')
   })
+  const tagFilteredMovieCount = movies.filter((movie) => {
+  if (selectedTags.length === 0) {
+    return true
+  }
+
+  const movieTags = movie.tags || []
+
+  return selectedTags.every((tag) => movieTags.includes(tag))
+}).length
  const displayedShelfItems = (() => {
   const normalizedSearchText = searchText
     .trim()
@@ -592,8 +601,8 @@ const allTags = tagMaster
     onClick={() => setIsTagMenuOpen((current) => !current)}
   >
     {selectedTags.length === 0
-      ? 'タグ：すべて'
-      : `タグ：${selectedTags.length}件`}
+  ? `タグ：すべて（${tagFilteredMovieCount}本）`
+  : `タグ：${selectedTags.length}件（${tagFilteredMovieCount}本）`}
   </button>
 
   {isTagMenuOpen && (

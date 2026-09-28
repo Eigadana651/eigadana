@@ -142,7 +142,7 @@ button {
 
 .movieGrid {
   display: grid;
-  grid-template-columns: repeat(var(--column-count, 7), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--column-count, 6), minmax(0, 1fr));
   gap: 16px 14px;
 }
 

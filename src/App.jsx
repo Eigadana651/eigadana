@@ -134,7 +134,7 @@ function App() {
 
   return savedColumnCount >= 5 && savedColumnCount <= 9
     ? savedColumnCount
-    : 7
+    : 6
 })
 useEffect(() => {
   localStorage.setItem('movieColumnCount', String(columnCount))
@@ -681,25 +681,25 @@ const allTags = tagMaster
   <button
     type="button"
     onClick={() =>
-      setColumnCount((current) => Math.max(5, current - 1))
+      setColumnCount((current) => Math.min(9, current + 1))
     }
-    disabled={columnCount === 5}
-    aria-label="列数を減らす"
-    title="列数を減らす"
+    disabled={columnCount === 9}
+    aria-label="表示を縮小"
+    title="表示を縮小"
   >
     −
   </button>
 
-  <span>{columnCount}列</span>
+  <span>{Math.round(600 / columnCount)}%</span>
 
   <button
     type="button"
     onClick={() =>
-      setColumnCount((current) => Math.min(9, current + 1))
+      setColumnCount((current) => Math.max(5, current - 1))
     }
-    disabled={columnCount === 9}
-    aria-label="列数を増やす"
-    title="列数を増やす"
+    disabled={columnCount === 5}
+    aria-label="表示を拡大"
+    title="表示を拡大"
   >
     ＋
   </button>
